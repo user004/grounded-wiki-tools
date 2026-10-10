@@ -20,14 +20,15 @@ cmd /c mklink /D "$HOME\Documents\Development\G2Wiki\data\Game" "$HOME\Downloads
 The folder needs to be named "Game" and that should be linked to the "Content" folder from the data as that's how the namespace in the files works:
 `/Game/Exported/Release_0_1/Localized/enus/Text/Text_enus`
 
-### Node
-Install [Node](https://nodejs.org/en/download) v24.21.0, then run:
+### Running
+Install [Node](https://nodejs.org/en/download) v24.21.0 (I like to use package managers like [Chocolatey](https://chocolatey.org/install)), then run:
 
 ```ps1
 node .\index.js
 # or simpler
 node .
-# you can also pipe the results to clipboard if you just wanna paste it directly in
+# you can also pipe the results to clipboard
+# if you just wanna paste it directly somewhere
 node . | clip
 ```
 
