@@ -1,0 +1,12 @@
+{
+  "name": "g2wiki",
+  "version": "0.0.1",
+  "description": "Helpers for extracting data for the G2 Wiki.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "user004",
+  "license": "CC-BY-SA-4.0",
+  "type": "module"
+}

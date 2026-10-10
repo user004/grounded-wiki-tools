@@ -1,3 +1,6 @@
+# project specific
+data/Game
+
 # Logs
 logs
 *.log
