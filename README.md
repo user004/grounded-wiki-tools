@@ -1,5 +1,5 @@
 # Grounded Wiki Tools
-Tools for editing the Grounded wiki: https://grounded.wiki.gg/
+Tools for editing the [Grounded Wiki](https://grounded.wiki.gg).
 
 ## Setup
 
@@ -24,21 +24,26 @@ The folder needs to be named "Game" and that should be linked to the "Content" f
 Install [Node](https://nodejs.org/en/download) v24.21.0 (I like to use package managers like [Chocolatey](https://chocolatey.org/install)), then run:
 
 ```ps1
-node .\index.js
-# or simpler
-node .
-# you can also pipe the results to clipboard
-# if you just wanna paste it directly somewhere
-node . | clip
+npm run [script-name]
+# or, to debug without copying to clipboard
+node .\[script-name].js
 ```
 
-I'm planning on making multiple scripts, so this section will change drastically, looking into something like [inquirer](https://www.npmjs.com/package/@inquirer/select), but we'll see.
+You can also use a tool like [ntl](https://github.com/ruyadorno/ntl) to select the scripts from the package in an interactive prompt.
 
 #### Notes
 
-Currently, the only script that does anything is `index.js` and it specifically only pulls Ranger Challener data.
+Currently, there are two scripts:
+* `brainpower-levels`
+* `ranger-challenges`
 
-This is just a proof of concept meant to see how viable this might be.
+These are just a proof of concept meant to see how viable this might be.
+
+#### Brainpower Levels
+
+Pulls the brainpower level data and formats it into a wiki table. This one seems to be accurate without any issues translating.
+
+##### Ranger Challenges
 
 It will pull the available quests and find all the data that needs the be entered into each row for the [wiki page](https://grounded.wiki.gg/wiki/Ranger_Challenges), as well as some helper utils that wrap things we might, like an item or creature, or automatically inserting the Raw Science template.
 
@@ -57,3 +62,6 @@ I have pasted the exact output into a [sandbox page](https://grounded.wiki.gg/wi
 Creating skeleton pages with the core bits of data, or lists like the prototype, will take time, but should be reusable every patch, and hopefully can free up time for the more intensive updates.
 
 More to come...
+
+* [https://grounded.wiki.gg/wiki/Special:ApiSandbox]
+* [https://grounded.wiki.gg/api.php?action=help&modules=main]

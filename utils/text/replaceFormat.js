@@ -1,3 +1,5 @@
+import wiki from '../wiki.js';
+
 /**
  * replaces UE formatting with a string, can wrap with wiki link
  * @param {string} format - string with formatting
@@ -15,7 +17,8 @@ const replaceFormat = (format, replace, wrap = false) => {
 			case 'BuildingName':
 			case 'CreatureName':
 			case 'ItemName':
-				replacer = `[[${replace}]]`;
+				// replacer = `[[${replace}]]`;
+				replacer = wiki.link(replace);
 				break;
 			default:
 				// no default

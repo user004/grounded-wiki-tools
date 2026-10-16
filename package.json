@@ -4,9 +4,16 @@
   "description": "Helpers for extracting data for the G2 Wiki.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "brainpower-levels": "node brainpower-levels.js | clip",
+    "ranger-challenges": "node ranger-challenges.js | clip"
   },
   "author": "user004",
   "license": "CC-BY-SA-4.0",
-  "type": "module"
+  "type": "module",
+  "ntl": {
+    "descriptions": {
+      "brainpower-levels": "Extracts the Brainpower Levels data and formats it for the wiki.",
+      "ranger-challenges": "Extracts the Ranger Challenges data and formats it for the wiki."
+    }
+  }
 }
