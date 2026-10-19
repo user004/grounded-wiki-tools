@@ -85,3 +85,7 @@ Also listing some links:
 * https://grounded.wiki.gg/wiki/Special:SpecialPages
 * https://trello.com/b/CkhOf594/grounded-wiki
 * https://www.mediawiki.org/wiki/Help:Keyboard_shortcuts
+
+### AI Disclaimer
+
+I am using GH Copilot to help write JSDocs mainly and also some smaller organizational tasks, but my goal is to analyze the data and write the scripts myself.

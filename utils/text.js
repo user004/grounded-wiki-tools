@@ -1,13 +1,13 @@
+import constants from './constants.js';
 import fs from 'node:fs';
 import path from 'node:path';
-import constants from './constants.js';
 import ue from './ue.js';
 import wiki from './wiki.js';
 
 /**
- * gets all texts for a specific language
+ * Gets all localized string tables for a specific language.
  * @param {'dede' | 'enus' | 'eses' | 'esmx' | 'frfr' | 'itit' | 'jajp' | 'kokr' | 'ptbr' | 'zhch' | 'zhtw'} [lang=enus] - the language to get
- * @return {object} an array of strings
+ * @returns {object[]} The merged localized string tables.
  */
 const getAllTables = (lang = 'enus') => {
 	const absolutePath = path.format({
@@ -41,6 +41,12 @@ const getAllTables = (lang = 'enus') => {
 
 };
 
+/**
+ * Finds the localized string ID for matching text, ignoring letter case.
+ * @param {object[]} stringTables - Localized string tables to search.
+ * @param {string} string - Text to find.
+ * @returns {string|undefined} The matching string ID, if found.
+ */
 const getIdFromTable = (stringTables, string) =>
 	stringTables
 		.flatMap(table => table.Value.Entries)
@@ -51,11 +57,12 @@ const getIdFromTable = (stringTables, string) =>
 		?.Value?.ID;
 
 /**
- * gets a string based on tabe and id (and manual
- * @param {Object} stringTables - array of string tables
- * @param {Object} StringObject - a StringObject object
- * @param {number} [StringObject.StringTableID=0] - the table ID
- * @param {number} [StringObject.StringID=0] - the string ID
+ * Gets localized text using its string table and string IDs.
+ * @param {object[]} stringTables - Localized string tables to search.
+ * @param {object} [StringObject={}] - The string table and string IDs.
+ * @param {number} [StringObject.StringTableID=0] - The table ID.
+ * @param {number} [StringObject.StringID=0] - The string ID.
+ * @returns {string|false} The localized string, or false if the table or entry is missing.
  */
 const getStringFromTable = (stringTables, { StringTableID = 0, StringID = 0 } = {}) => {
 	// console.log('getStringFromTable', { StringTableID, StringID });
@@ -73,9 +80,10 @@ const getStringFromTable = (stringTables, { StringTableID = 0, StringID = 0 } = 
 
 
 /**
- * replaces UE formatting with a string, can wrap with wiki link
- * @param {string} format - string with formatting
- * @param {string} replace - string to be replaced
+ * Replaces UE formatting placeholders with text, wrapping named placeholders in a wiki link.
+ * @param {string} format - String with formatting placeholders.
+ * @param {string} replace - Text to substitute for placeholders.
+ * @returns {string} The formatted text.
  */
 const replaceFormat = (format, replace) => {
 	if (!format) return '';
@@ -101,4 +109,4 @@ const replaceFormat = (format, replace) => {
 	return replaced;
 };
 
-export default { replaceFormat, getStringFromTable, getIdFromTable, getAllTables };
+export default { getAllTables, getIdFromTable, getStringFromTable, replaceFormat };

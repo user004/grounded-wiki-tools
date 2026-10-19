@@ -5,6 +5,11 @@
  */
 const bold = (text) => `'''${text}'''`;
 
+/**
+ * Applies known naming corrections to text before it is used in wiki markup.
+ * @param {string} string - Text to correct.
+ * @returns {string} Corrected text.
+ */
 const fix = (string) => {
 	let replaced = string;
 

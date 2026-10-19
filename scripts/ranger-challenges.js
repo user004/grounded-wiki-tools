@@ -16,6 +16,7 @@ const questRows = rangerQuests.map(({ ObjectPath }) => {
 
 	const questProps = questClass?.Properties || {};
 
+	// TODO: is this the right order?
 	const combinedProps = ue.deepMerge(templateProps, questProps);
 
 	const title = text.getStringFromTable(allTables, combinedProps.TitleString);

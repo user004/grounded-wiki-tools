@@ -27,6 +27,11 @@ const CONSTANTS = {
 	}
 };
 
+/**
+ * Gets a named constant from the shared constants map.
+ * @param {string} constant - Name of the constant to retrieve.
+ * @returns {object} The constant value, or an empty object if it is not defined.
+ */
 const getConstant = (constant) => CONSTANTS[constant] || {};
 
 export default { getConstant };
