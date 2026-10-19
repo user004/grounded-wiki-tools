@@ -26,7 +26,7 @@ Install [Node](https://nodejs.org/en/download) v24.21.0 (I like to use package m
 ```ps1
 npm run [script-name]
 # or, to debug without copying to clipboard
-node .\[script-name].js
+node .\scripts\[script-name].js
 ```
 
 You can also use a tool like [ntl](https://github.com/ruyadorno/ntl) to select the scripts from the package in an interactive prompt.
