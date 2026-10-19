@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "brainpower-levels": "node brainpower-levels.js | clip",
-    "ranger-challenges": "node ranger-challenges.js | clip"
+    "ranger-challenges": "node ranger-challenges.js | clip",
+    "unlocks": "node unlocks.js | clip"
   },
   "author": "user004",
   "license": "CC-BY-SA-4.0",
@@ -13,7 +14,8 @@
   "ntl": {
     "descriptions": {
       "brainpower-levels": "Extracts the Brainpower Levels data and formats it for the wiki.",
-      "ranger-challenges": "Extracts the Ranger Challenges data and formats it for the wiki."
+      "ranger-challenges": "Extracts the Ranger Challenges data and formats it for the wiki.",
+      "unlocks": "Extracts the Resource Analyzer data and formats it for the wiki."
     }
   }
 }

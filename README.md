@@ -1,5 +1,5 @@
 # Grounded Wiki Tools
-Tools for editing the [Grounded Wiki](https://grounded.wiki.gg).
+Tools for pulling data from exported game files to use in the [Grounded Wiki](https://grounded.wiki.gg).
 
 ## Setup
 
@@ -31,23 +31,30 @@ node .\[script-name].js
 
 You can also use a tool like [ntl](https://github.com/ruyadorno/ntl) to select the scripts from the package in an interactive prompt.
 
-#### Notes
+### Scripts
 
-Currently, there are two scripts:
+Currently, these are the available scripts:
 * `brainpower-levels`
 * `ranger-challenges`
+* `unlocks`
 
 These are just a proof of concept meant to see how viable this might be.
 
 #### Brainpower Levels
 
+* [Wiki](https://grounded.wiki.gg/wiki/Resource_Analyzer#_Grounded_2_-0)
+* [Example](https://grounded.wiki.gg/wiki/User:User004/sandbox/Brainpower_Levels)
+
 Pulls the brainpower level data and formats it into a wiki table. This one seems to be accurate without any issues translating.
 
-##### Ranger Challenges
+#### Ranger Challenges
 
-It will pull the available quests and find all the data that needs the be entered into each row for the [wiki page](https://grounded.wiki.gg/wiki/Ranger_Challenges), as well as some helper utils that wrap things we might, like an item or creature, or automatically inserting the Raw Science template.
+* [Wiki](https://grounded.wiki.gg/wiki/Ranger_Challenges)
+* [Example](https://grounded.wiki.gg/wiki/User:User004/sandbox/Ranger_Challenges)
 
-I have pasted the exact output into a [sandbox page](https://grounded.wiki.gg/wiki/User:User004/sandbox/Ranger_Challenges) to compare against, and here are some exceptions/notes:
+It will pull the available quests and find all the data that needs the be entered into each row, as well as some helper utils that wrap things we might, like an item or creature, or automatically inserting the Raw Science template.
+
+Here are some exceptions/notes:
 * I haven't extracted 0.6 yet, so they don't match that, and there's some wrong data, but this data should be excatly what's in the export
   * Example: smoothie challenges (19, 44, 46)
 * Some links are red (Orb Weaver Spiders, 21), are linked to a piece of armor instead of the whole set (clover, acorn, rusty, koi), or aren't linked (Zipline Anchors, 61)
@@ -57,11 +64,24 @@ I have pasted the exact output into a [sandbox page](https://grounded.wiki.gg/wi
 * Nothing links to the G2 verison, if there is a tabber
   * Once again, more helpers/rules
 
-**And most importantly**, this doesn't stop the manual work that still needs to be done getting files from the data or game, uploading them, and writing all the content that isn't copypasta. This project isn't meant to replace those things, just to assist.
+#### Unlocks
+
+* [Wiki](https://grounded.wiki.gg/wiki/Resource_Analyzer#_Grounded_2_-0)
+* [Example](https://grounded.wiki.gg/wiki/User:User004/sandbox/Resource_Analyzer)
+
+Lists all items with unlocks when you analyze them.
+
+## Notes
+
+**Most importantly**, this doesn't stop the manual work that still needs to be done getting files from the data or game, uploading them, and writing all the content that isn't copypasta. This project isn't meant to replace those things, just to assist.
 
 Creating skeleton pages with the core bits of data, or lists like the prototype, will take time, but should be reusable every patch, and hopefully can free up time for the more intensive updates.
 
-More to come...
+Also listing some links:
 
-* [https://grounded.wiki.gg/wiki/Special:ApiSandbox]
-* [https://grounded.wiki.gg/api.php?action=help&modules=main]
+* https://codeberg.org/gibbert/rotwood-wikigg-automated/src/branch/main/src/wikigg-automated/scripts/wikiggutil
+* https://grounded.wiki.gg/api.php?action=help&modules=main
+* https://grounded.wiki.gg/wiki/Special:ApiSandbox
+* https://grounded.wiki.gg/wiki/Special:SpecialPages
+* https://trello.com/b/CkhOf594/grounded-wiki
+* https://www.mediawiki.org/wiki/Help:Keyboard_shortcuts

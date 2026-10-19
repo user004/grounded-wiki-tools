@@ -1,3 +1,5 @@
+import fix from "./fix.js";
+
 /**
  * Wraps text in the wiki's bold markup.
  * @param {string} text - Text to format.
@@ -21,12 +23,19 @@ const icon = (icon, size, labelSide = 'right') => {
 };
 
 /**
+ * Wraps text in the wiki's italic markup.
+ * @param {string} text - Text to format.
+ * @returns {string} Italic-formatted wiki text.
+ */
+const italic = (text) => `''${text}''`;
+
+/**
  * Creates a wiki link, optionally with display text.
  * @param {string} link - The page or target to link to.
  * @param {string} [text=''] - Optional display text for the link.
  * @returns {string} Formatted wiki link.
  */
-const link = (link, text = '') => `[[${link}${text && `|${text}`}]]`;
+const link = (link, text = '') => `[[${fix(link)}${text && `|${text}`}]]`;
 
 /**
  * Formats each item as a wiki list entry.
@@ -56,7 +65,7 @@ const table = (rows, sortable = false, collapsible = false, collapsed = false) =
 	if (collapsible) classes.push('mw-collapsible');
 	if (collapsed) classes.push('mw-collapsed');
 
-	return `{| class="${classes.join(' ')}" width="100%" style="text-align:center; font-size:15px;"\n${rows.join('\n')}\n|}`;
+	return `{| class="${classes.join(' ')}" width="100%" style="text-align: center; font-size: 15px;"\n${rows.join('\n')}\n|}`;
 };
 
 /**
@@ -95,4 +104,4 @@ const tableRow = (columns, header = false) => {
 	return `|-\n${separator} ${formattedColumns.join(`\n${separator} `)}`;
 };
 
-export default { bold, icon, link, list, rawScience, table, tableHeader, tableRow };
+export default { bold, icon, italic, link, list, rawScience, table, tableHeader, tableRow };
