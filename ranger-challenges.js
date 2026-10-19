@@ -2,7 +2,6 @@ import deepMerge from './utils/deepMerge.js';
 import getAllTables from './utils/text/getAllTables.js';
 import getStringFromTable from './utils/text/getStringFromTable.js';
 import parsePathData from './utils/parsePathData.js';
-import rawScience from './utils/templates/rawScience.js';
 import replaceFormat from './utils/text/replaceFormat.js';
 import wiki from './utils/wiki.js';
 
@@ -24,7 +23,6 @@ const questRows = rangerQuests.map(({ ObjectPath }) => {
 
 	const title = getStringFromTable(allTables, combinedProps.TitleString);
 	const descriptionFormat = getStringFromTable(allTables, combinedProps.ObjectiveFormatString);
-	const rs = rawScience(combinedProps.RawScienceReward);
 
 	let itemName = getStringFromTable(allTables,
 		combinedProps.CreatureDisplayName ||

@@ -11,7 +11,7 @@ const parsePathData = (stringPath) => {
 
 	if (!stringPath) return {};
 
-	const [ dataPath = '', dataIndex = '0' ] = stringPath.split('.');
+	const [dataPath = '', dataIndex = '0'] = stringPath.split('.');
 	const absolutePath = path.format({
 		root: 'data',
 		name: dataPath,

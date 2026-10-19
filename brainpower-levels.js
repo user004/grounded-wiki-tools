@@ -31,8 +31,8 @@ const levelRows = researchLevels.map(({ ResearchPointThreshold, UnlockRecipes, B
 
 		return wiki.icon(craftedName, 32);
 	})
-	// filter out nulls and duplicates
-	.filter((item, index, self) => item && self.indexOf(item) === index);
+		// filter out nulls and duplicates
+		.filter((item, index, self) => item && self.indexOf(item) === index);
 
 	return wiki.tableRow([
 		level++,

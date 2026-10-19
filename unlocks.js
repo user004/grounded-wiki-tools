@@ -1,7 +1,7 @@
 import getDataTableItem from './utils/getDataTableItem.js';
 import parsePathData from './utils/parsePathData.js';
 import getAllTables from './utils/text/getAllTables.js';
-import getIdFromTable from './utils/text/getIdFromString.js';
+// import getIdFromTable from './utils/text/getIdFromString.js';
 import getStringFromTable from './utils/text/getStringFromTable.js';
 import wiki from './utils/wiki.js';
 
@@ -50,12 +50,12 @@ const unlockables = Object.values(allItems)
 
 			return wiki.link(craftedName);
 		})
-		.reduce((acc, current) => {
-			if (!acc.includes(current)) {
-				acc.push(current);
-			}
-			return acc;
-		}, [])
+			.reduce((acc, current) => {
+				if (!acc.includes(current)) {
+					acc.push(current);
+				}
+				return acc;
+			}, [])
 		// .sort();
 		console.groupEnd();
 		return {

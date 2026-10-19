@@ -4,6 +4,8 @@
   "description": "Helpers for extracting data for the G2 Wiki.",
   "main": "index.js",
   "scripts": {
+    "lint": "npx eslint **/*.js",
+    "lint-fix": "npx eslint --fix **/*.js",
     "brainpower-levels": "node brainpower-levels.js | clip",
     "ranger-challenges": "node ranger-challenges.js | clip",
     "unlocks": "node unlocks.js | clip"
@@ -13,9 +15,16 @@
   "type": "module",
   "ntl": {
     "descriptions": {
+      "lint": "Runs eslint on all files.",
+      "lint-fix": "Runs eslint on all files and fixes smaller issues.",
       "brainpower-levels": "Extracts the Brainpower Levels data and formats it for the wiki.",
       "ranger-challenges": "Extracts the Ranger Challenges data and formats it for the wiki.",
       "unlocks": "Extracts the Resource Analyzer data and formats it for the wiki."
     }
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.13.0",
+    "globals": "^17.13.0"
   }
 }

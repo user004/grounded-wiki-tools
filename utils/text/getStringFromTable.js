@@ -1,8 +1,8 @@
 const tableIdToString = {
-	  1: 'game/gui',
-	  2: 'game/items',
-	  9: 'game/characters',
-	 22: 'game/buildings',
+	1: 'game/gui',
+	2: 'game/items',
+	9: 'game/characters',
+	22: 'game/buildings',
 	193: 'game/burglequests',
 	// TODO: add more
 	/* remaining in alphabetical order

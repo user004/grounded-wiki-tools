@@ -17,7 +17,7 @@ const getAllTables = (lang = 'enus') => {
 
 	const allTables = [];
 
-	const allText = releases.forEach(release => {
+	releases.forEach(release => {
 		const releaseTextPath = path.join(
 			'/Game/Exported',
 			release,

@@ -4,9 +4,8 @@ import wiki from '../wiki.js';
  * replaces UE formatting with a string, can wrap with wiki link
  * @param {string} format - string with formatting
  * @param {string} replace - string to be replaced
- * @param {boolean} [wrap=false] - TODO: make this work
  */
-const replaceFormat = (format, replace, wrap = false) => {
+const replaceFormat = (format, replace) => {
 	if (!format) return '';
 	let replaced = format;
 	const regex = /\{([^}]+)\}/gi;
@@ -21,7 +20,7 @@ const replaceFormat = (format, replace, wrap = false) => {
 				replacer = wiki.link(replace);
 				break;
 			default:
-				// no default
+			// no default
 		}
 		replaced = format.replaceAll(regex, replacer);
 		// console.log(replaced);
