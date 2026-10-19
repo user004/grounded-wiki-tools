@@ -1,11 +1,8 @@
-import getDataTableItem from './utils/getDataTableItem.js';
-import parsePathData from './utils/parsePathData.js';
-import getAllTables from './utils/text/getAllTables.js';
-// import getIdFromTable from './utils/text/getIdFromString.js';
-import getStringFromTable from './utils/text/getStringFromTable.js';
-import wiki from './utils/wiki.js';
+import text from '../utils/text.js';
+import ue from '../utils/ue.js';
+import wiki from '../utils/wiki.js';
 
-const allTables = getAllTables();
+const allTables = text.getAllTables();
 
 // TODO: do something with this
 const args = process.argv.slice(2);
@@ -16,10 +13,10 @@ if (args.length) {
 }
 // console.log(args);
 
-// const testing = getIdFromTable(allTables, args[0]);
+// const testing = text.getIdFromTable(allTables, args[0]);
 // console.log(testing);
 
-const allItems = parsePathData('/Game/Blueprints/Items/Table_AllItems.0')?.Rows || [];
+const allItems = ue.parsePathData('/Game/Blueprints/Items/Table_AllItems.0')?.Rows || [];
 // console.log(allItems);
 
 
@@ -30,23 +27,23 @@ const allItems = parsePathData('/Game/Blueprints/Items/Table_AllItems.0')?.Rows 
 const unlockables = Object.values(allItems)
 	.filter(({ NewResearchUnlockRecipes }) => NewResearchUnlockRecipes.length > 0)
 	.map(({ LocalizedDisplayName, NewResearchUnlockRecipes }) => {
-		const itemName = getStringFromTable(allTables, LocalizedDisplayName);
+		const itemName = text.getStringFromTable(allTables, LocalizedDisplayName);
 		// console.group(itemName);
 		const unlocks = NewResearchUnlockRecipes.map(unlockRecipe => {
 			// console.log(unlockRecipe);
 
-			const recipe = getDataTableItem(unlockRecipe);
+			const recipe = ue.getDataTableItem(unlockRecipe);
 			// console.log(recipe);
 
 
-			const crafted = getDataTableItem(
+			const crafted = ue.getDataTableItem(
 				recipe.CraftedItem ||
 				recipe.Building || {});
 
 			// console.log(crafted);
 
 
-			const craftedName = getStringFromTable(allTables, crafted.LocalizedDisplayName);
+			const craftedName = text.getStringFromTable(allTables, crafted.LocalizedDisplayName);
 
 			return wiki.link(craftedName);
 		})
@@ -94,11 +91,11 @@ console.log(wiki.table([header, ...unlockables], true, true));
 /*
 for (const [key, { LocalizedDisplayName, NewResearchUnlockRecipes }] of Object.entries(allItems)) {
 	if (NewResearchUnlockRecipes.length > 0) {
-		const itemName = getStringFromTable(allTables, LocalizedDisplayName);
+		const itemName = text.getStringFromTable(allTables, LocalizedDisplayName);
 		// console.log(itemName);
 		const unlocks = NewResearchUnlockRecipes.map(unlock => {
-			const unlockObject = getDataTableItem(unlock);
-			return getStringFromTable(unlockObject?.LocalizedDisplayName || {});
+			const unlockObject = ue.getDataTableItem(unlock);
+			return text.getStringFromTable(unlockObject?.LocalizedDisplayName || {});
 		});
 		// console.log(itemName, unlocks);
 	}

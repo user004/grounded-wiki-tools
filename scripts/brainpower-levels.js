@@ -1,33 +1,31 @@
-import getAllTables from './utils/text/getAllTables.js';
-import parsePathData from './utils/parsePathData.js';
-import getDataTableItem from './utils/getDataTableItem.js';
-import getStringFromTable from './utils/text/getStringFromTable.js';
-import wiki from './utils/wiki.js';
+import text from '../utils/text.js';
+import ue from '../utils/ue.js';
+import wiki from '../utils/wiki.js';
 
-const allTables = getAllTables();
+const allTables = text.getAllTables();
 
 // found this, wanted to save it somewhere, could build into brainpower tiers/unlocks
 // Augusta/Content/Blueprints/Items/Table_AllItems --- NewResearchUnlockRecipes
 // Augusta/Content/Blueprints/Global/GlobalItemData.json --- ResearchLevels
 
-const researchLevels = parsePathData('/Game/Blueprints/Global/GlobalItemData.0')?.Properties?.ResearchLevels || [];
+const researchLevels = ue.parsePathData('/Game/Blueprints/Global/GlobalItemData.0')?.Properties?.ResearchLevels || [];
 
 let level = 1;
 const levelRows = researchLevels.map(({ ResearchPointThreshold, UnlockRecipes, BonusScienceAtLevel }) => {
-	// const level = getStringFromTable(allTables, LocalizedDisplayName);
+	// const level = text.getStringFromTable(allTables, LocalizedDisplayName);
 	const unlocks = UnlockRecipes.map(unlockRecipe => {
-		const recipe = getDataTableItem(unlockRecipe);
+		const recipe = ue.getDataTableItem(unlockRecipe);
 
 		/*
 		Building
 		CraftedItem
 		*/
-		const crafted = getDataTableItem(
+		const crafted = ue.getDataTableItem(
 			recipe.CraftedItem ||
 			recipe.Building ||
 			{});
 
-		const craftedName = getStringFromTable(allTables, crafted.LocalizedDisplayName);
+		const craftedName = text.getStringFromTable(allTables, crafted.LocalizedDisplayName);
 
 		return wiki.icon(craftedName, 32);
 	})

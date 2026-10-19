@@ -1,30 +1,27 @@
-import deepMerge from './utils/deepMerge.js';
-import getAllTables from './utils/text/getAllTables.js';
-import getStringFromTable from './utils/text/getStringFromTable.js';
-import parsePathData from './utils/parsePathData.js';
-import replaceFormat from './utils/text/replaceFormat.js';
-import wiki from './utils/wiki.js';
+import text from '../utils/text.js';
+import ue from '../utils/ue.js';
+import wiki from '../utils/wiki.js';
 
-const allTables = getAllTables();
+const allTables = text.getAllTables();
 
-const rangerQuests = parsePathData('/Game/Blueprints/BurgleQuests/ASLQuestCollection.0')?.Properties?.Collection || [];
+const rangerQuests = ue.parsePathData('/Game/Blueprints/BurgleQuests/ASLQuestCollection.0')?.Properties?.Collection || [];
 
 let i = 1;
 const questRows = rangerQuests.map(({ ObjectPath }) => {
-	const questData = parsePathData(ObjectPath);
-	const questClass = parsePathData(questData.ClassDefaultObject?.ObjectPath);
-	const templateClass = parsePathData(questClass?.Template?.ObjectPath);
+	const questData = ue.parsePathData(ObjectPath);
+	const questClass = ue.parsePathData(questData.ClassDefaultObject?.ObjectPath);
+	const templateClass = ue.parsePathData(questClass?.Template?.ObjectPath);
 
 	const templateProps = templateClass?.Properties || {};
 
 	const questProps = questClass?.Properties || {};
 
-	const combinedProps = deepMerge(templateProps, questProps);
+	const combinedProps = ue.deepMerge(templateProps, questProps);
 
-	const title = getStringFromTable(allTables, combinedProps.TitleString);
-	const descriptionFormat = getStringFromTable(allTables, combinedProps.ObjectiveFormatString);
+	const title = text.getStringFromTable(allTables, combinedProps.TitleString);
+	const descriptionFormat = text.getStringFromTable(allTables, combinedProps.ObjectiveFormatString);
 
-	let itemName = getStringFromTable(allTables,
+	let itemName = text.getStringFromTable(allTables,
 		combinedProps.CreatureDisplayName ||
 		combinedProps.ObjectiveCombo ||
 		// combinedProps.ObjectiveDisplay ||// required by ### but not by 24 (weakpoint)???
@@ -49,17 +46,17 @@ const questRows = rangerQuests.map(({ ObjectPath }) => {
 			const logicalItemFound = combinedProps[logicalItem]?.[0];
 			if (logicalItemFound) {
 
-				const allItems = parsePathData(logicalItemFound.DataTable?.ObjectPath);
+				const allItems = ue.parsePathData(logicalItemFound.DataTable?.ObjectPath);
 				if (allItems) {
 					const currentItem = allItems.Rows[logicalItemFound.RowName];
-					itemName = getStringFromTable(allTables, currentItem.LocalizedDisplayName)
+					itemName = text.getStringFromTable(allTables, currentItem.LocalizedDisplayName)
 				}
 			}
 		}
 	}
 
 	// find+replacing
-	let replaced = replaceFormat(descriptionFormat, itemName || qty);
+	let replaced = text.replaceFormat(descriptionFormat, itemName || qty);
 
 	// TODO: change to > 1?
 	if (qty) replaced += ` (0/${qty})`;

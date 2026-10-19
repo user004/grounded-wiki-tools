@@ -1,11 +1,28 @@
-import fix from "./fix.js";
-
 /**
  * Wraps text in the wiki's bold markup.
  * @param {string} text - Text to format.
  * @returns {string} Bold-formatted wiki text.
  */
 const bold = (text) => `'''${text}'''`;
+
+const fix = (string) => {
+	let replaced = string;
+
+	const fixMap = [
+		{
+			find: /\bWall Mount\b/g,
+			replace: 'Mount',
+		},
+	];
+
+	fixMap.forEach(({ find, replace }) => {
+		if (find.test(replaced)) {
+			replaced = replaced.replaceAll(find, replace);
+		}
+	});
+
+	return replaced;
+};
 
 /**
  * Creates an icon template with an optional size and label position.

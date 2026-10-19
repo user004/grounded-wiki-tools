@@ -6,9 +6,9 @@
   "scripts": {
     "lint": "npx eslint **/*.js",
     "lint-fix": "npx eslint --fix **/*.js",
-    "brainpower-levels": "node brainpower-levels.js | clip",
-    "ranger-challenges": "node ranger-challenges.js | clip",
-    "unlocks": "node unlocks.js | clip"
+    "brainpower-levels": "node ./scripts/brainpower-levels.js | clip",
+    "ranger-challenges": "node ./scripts/ranger-challenges.js | clip",
+    "unlocks": "node ./scripts/unlocks.js | clip"
   },
   "author": "user004",
   "license": "CC-BY-SA-4.0",
