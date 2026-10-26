@@ -35,13 +35,16 @@ const allItems = ue.parsePathData('/Game/Blueprints/Items/Table_AllItems.0').Row
 const allSets = ue.parsePathData('/Game/Blueprints/Items/ItemTables/Table_ItemSets.0').Rows || {};
 
 // mutations
-// /Game/Design/Perks/Table_Perks.0
+const allMutations = ue.parsePathData('/Game/Design/Perks/Table_Perks.0')?.Rows || [];
+
+// consumables
+const allConsumables = ue.parsePathData('/Game/Blueprints/Items/Table_Consumables.0')?.Rows || [];
 
 // const getDamageDetails = () => { };
 
 const getStatusDetails = (key, statusObject) => {
 	if (statusObject === undefined) {
-		console.log({ key, statusObject });
+		// console.log({ key, statusObject });
 	}
 
 	const name = text.getStringFromTable(allTables, statusObject.DisplayData?.Name);
@@ -89,9 +92,9 @@ const getStatusDetails = (key, statusObject) => {
 	// if (key === 'ArmorAntSet') console.log(statusObject.ExtraData);
 
 	let extraData;
-	if (statusObject.ExtraData.DataTable) {
+	if (statusObject.ExtraData && statusObject.ExtraData.DataTable) {
 		extraData = ue.getDataTableItem(statusObject.ExtraData) || {};
-		if (key === 'ArmorAcornSet') console.log({ extraData });
+		// if (key === 'PerkFistsTier3') console.log(statusObject.ExtraData.RowName, extraData);
 
 		const objKeys = [
 			'DamageData',
@@ -153,6 +156,8 @@ const getStatusDetails = (key, statusObject) => {
 					extraData[objKey][damageKey] !== 'EStatusEffectType::None') {
 					// TODO: need to figure out status effect array instead of just including it
 					if (Array.isArray(extraData[objKey][damageKey]) && extraData[objKey][damageKey].length > 0) {
+						// if (key === 'PerkFistsTier3' && damageKey === 'StatusEffects') console.log(extraData[objKey][damageKey]);
+
 						damageLoop[damageKey] = extraData[objKey][damageKey].map(status => {
 							if (Object.hasOwn(status, 'DataTable')) {
 								const statusObject = ue.getDataTableItem(status);
@@ -198,7 +203,10 @@ const getStatusDetails = (key, statusObject) => {
 				Object.hasOwn(damageLoop, 'Pushback') ||
 				(Object.hasOwn(damageLoop, 'StatusEffectsToApply') &&
 					Array.isArray(damageLoop.StatusEffectsToApply) &&
-					damageLoop.StatusEffectsToApply.length)
+					damageLoop.StatusEffectsToApply.length) ||
+				(Object.hasOwn(damageLoop, 'StatusEffects') &&
+					Array.isArray(damageLoop.StatusEffects) &&
+					damageLoop.StatusEffects.length)
 			)) {
 				statusData[objKey] = damageLoop;
 			} else {
@@ -372,6 +380,35 @@ for (let [key, set] of Object.entries(allSets)) {
 }
 
 // mutations
+Object.values(allMutations).forEach(mutation => {
+	const mutationName = text.getStringFromTable(allTables, mutation.LocalizedDisplayName);
 
+	mutation.Tiers.flatMap(tier => tier.Reward).flatMap(tier => tier.StatusEffects).forEach(statusTable => {
+		if (statusTable.DataTable.ObjectName.includes('DT_StatusEffects')) return;
 
-// console.log(statusGroups.positive.armor.sets);
+		const statusObject = ue.getDataTableItem(statusTable);
+		const statusDetails = getStatusDetails(statusTable.RowName, statusObject);
+		statusDetails.source = [mutationName];
+
+		statusGroups.positive.mutations.push(statusDetails);
+	})
+});
+
+// consumables
+Object.values(allConsumables).forEach(consumable => {
+	const consumableName = text.getStringFromTable(allTables, consumable.LocalizedDisplayName);
+
+	consumable.StatusEffects.forEach(statusTable => {
+		if (statusTable.DataTable.ObjectName.includes('DT_StatusEffects')) return;
+
+		const statusObject = ue.getDataTableItem(statusTable);
+		const statusDetails = getStatusDetails(statusTable.RowName, statusObject);
+		let magnetism = statusObject.bIsNegativeEffectInUI ? 'negative' : 'positive';
+
+		statusDetails.source = [consumableName];
+
+		statusGroups[magnetism].consumables.push(statusDetails);
+	})
+});
+
+console.log(statusGroups);
