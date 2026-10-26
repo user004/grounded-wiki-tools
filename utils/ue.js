@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import constants from './constants.js';
 
 /**
  * Merges source properties into a deep copy of a target object.
@@ -31,6 +32,16 @@ const deepMerge = (target, source) => {
 	}
 
 	return output;
+};
+
+const getDamageTypes = (value) => {
+	let names = [];
+
+	for (let [bit, name] of Object.entries(constants.getConstant('damageTypeFlags'))) {
+		if (value & bit) names.push(name);
+	}
+
+	return names;
 };
 
 /**
@@ -72,11 +83,7 @@ const parsePathData = (stringPath) => {
 		ext: 'json',
 	});
 
-	const resolvedPath = path.resolve(absolutePath);
-
-	if (!resolvedPath) return false;
-
-	const data = fs.readFileSync(resolvedPath, 'utf8');
+	const data = fs.readFileSync(absolutePath, 'utf8');
 
 	if (!data) return false;
 
@@ -87,4 +94,4 @@ const parsePathData = (stringPath) => {
 	return jsonData[dataIndex] || {};
 };
 
-export default { deepMerge, getDataTableItem, parsePathData };
+export default { deepMerge, getDamageTypes, getDataTableItem, parsePathData };

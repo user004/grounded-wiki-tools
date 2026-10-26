@@ -4,6 +4,25 @@ import wiki from '../utils/wiki.js';
 
 const allTables = text.getAllTables();
 
+const fixUnlocks = (unlock) => {
+	let replaced = unlock;
+
+	[
+		{
+			find: /\bInt\./i,
+			replace: 'Interior',
+		},
+		{
+			find: /\bSq\./i,
+			replace: 'Squared',
+		},
+	].forEach(({ find, replace }) => {
+		if (replaced.match(find)) replaced = replaced.replace(find, replace);
+	});
+
+	return replaced;
+}
+
 // TODO: do something with this
 const args = process.argv.slice(2);
 if (args.length) {
@@ -30,45 +49,31 @@ const unlockables = Object.values(allItems)
 		const itemName = text.getStringFromTable(allTables, LocalizedDisplayName);
 		// console.group(itemName);
 		const unlocks = NewResearchUnlockRecipes.map(unlockRecipe => {
-			// console.log(unlockRecipe);
-
 			const recipe = ue.getDataTableItem(unlockRecipe);
-			// console.log(recipe);
-
 
 			const crafted = ue.getDataTableItem(
 				recipe.CraftedItem ||
 				recipe.Building || {});
 
-			// console.log(crafted);
-
-
 			const craftedName = text.getStringFromTable(allTables, crafted.LocalizedDisplayName);
 
-			return wiki.link(craftedName);
+			return wiki.link(fixUnlocks(craftedName));
 		})
 			.reduce((acc, current) => {
 				if (!acc.includes(current)) {
 					acc.push(current);
 				}
 				return acc;
-			}, [])
-		// .sort();
-		console.groupEnd();
+			}, []);
+
 		return {
 			name: itemName,
 			unlocks: unlocks,
 		}
 	})
 	.sort((a, b) => {
-		if (a.name.toUpperCase() < b.name.toUpperCase()) {
-			return -1;
-		}
-
-		if (a.name.toUpperCase() > b.name.toUpperCase()) {
-			return 1;
-		}
-
+		if (a.name.toUpperCase() < b.name.toUpperCase()) return -1;
+		if (a.name.toUpperCase() > b.name.toUpperCase()) return 1;
 		return 0;
 	})
 	.map(({ name, unlocks }) =>

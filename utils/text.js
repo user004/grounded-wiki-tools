@@ -10,35 +10,30 @@ import wiki from './wiki.js';
  * @returns {object[]} The merged localized string tables.
  */
 const getAllTables = (lang = 'enus') => {
-	const absolutePath = path.format({
-		root: 'data',
-		name: '/Game/Exported',
-	});
-	const resolvedPath = path.resolve(absolutePath);
-	const releases = fs.readdirSync(resolvedPath);
+	let allTables = [];
 
-	const allTables = [];
+	try {
+		fs.globSync(`data/Game/Exported/*/Localized/${lang}/Text/Text_${lang}.json`)
+			.sort()
+			.forEach(textFile => {
+				JSON.parse(fs.readFileSync(textFile, 'utf-8'))?.[0]?.Properties?.StringTables
+					.forEach(stringTable => {
+						const foundIndex = allTables.findIndex(table =>
+							table.Key === stringTable.Key);
 
-	releases.forEach(release => {
-		const releaseTextPath = path.join(
-			'/Game/Exported',
-			release,
-			`Localized/${lang}/Text/Text_${lang}.0`,
-		);
-		const textData = ue.parsePathData(releaseTextPath);
-		// return textData.Properties.StringTables;
-		textData.Properties.StringTables.forEach(stringTable => {
-			const allIndex = allTables.findIndex(table => table.Key === stringTable.Key);
-			if (allIndex === -1) {
-				allTables.push(stringTable);
-			} else {
-				allTables[allIndex].Value.Entries.push(...stringTable.Value.Entries);
-			}
-		});
-	});
+						if (foundIndex === -1) {
+							allTables.push(stringTable);
+						} else {
+							allTables[foundIndex].Value.Entries
+								.push(...stringTable.Value.Entries);
+						}
+					});
+			});
+	} catch (error) {
+		console.error(error);
+	}
 
 	return allTables;
-
 };
 
 /**

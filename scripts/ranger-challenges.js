@@ -22,10 +22,11 @@ const questRows = rangerQuests.map(({ ObjectPath }) => {
 	const title = text.getStringFromTable(allTables, combinedProps.TitleString);
 	const descriptionFormat = text.getStringFromTable(allTables, combinedProps.ObjectiveFormatString);
 
+
 	let itemName = text.getStringFromTable(allTables,
 		combinedProps.CreatureDisplayName ||
 		combinedProps.ObjectiveCombo ||
-		// combinedProps.ObjectiveDisplay ||// required by ### but not by 24 (weakpoint)???
+		combinedProps.ObjectiveDisplay ||// required by 11 (perfect block) but not by 24 (weakpoint)???
 		combinedProps.ObjectiveItemName ||
 		'');
 	const qty =
@@ -59,8 +60,12 @@ const questRows = rangerQuests.map(({ ObjectPath }) => {
 	// find+replacing
 	let replaced = text.replaceFormat(descriptionFormat, itemName || qty);
 
+	// TODO: figure this shit out
+	if (title === 'Perfect Timing' || title === 'Achilles\' Heel' || title === 'Neato Torpedo' || title === 'Tiers for Gears') {
+		console.log({ title, descriptionFormat, itemName, qty, replaced });
+	}
 	// TODO: change to > 1?
-	if (qty) replaced += ` (0/${qty})`;
+	if (qty > 1) replaced += ` (0/${qty})`;
 
 	/* row format:
 		|-
@@ -89,4 +94,4 @@ const headerRows = [
 	]),
 ];
 
-console.log(wiki.table([...headerRows, ...questRows], false, true));
+// console.log(wiki.table([...headerRows, ...questRows], false, true));
