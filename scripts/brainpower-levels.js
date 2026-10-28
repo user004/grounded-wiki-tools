@@ -57,3 +57,5 @@ const zeroRow = wiki.tableRow([
 ]);
 
 console.log(wiki.table([headerRow, zeroRow, ...levelRows], true, true, true));
+
+wiki.timestamp();

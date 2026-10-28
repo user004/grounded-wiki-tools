@@ -1,9 +1,17 @@
+const start = performance.now();
+
 /**
  * Wraps text in the wiki's bold markup.
  * @param {string} text - Text to format.
  * @returns {string} Bold-formatted wiki text.
  */
 const bold = (text) => `'''${text}'''`;
+
+const code = (code) => `<pre>${code}</pre>`;
+
+const comment = (comment) =>
+	['<!--', comment, '-->']
+		.join(comment.match(/\n/gi) ? `\n` : ' ');
 
 /**
  * Applies known naming corrections to text before it is used in wiki markup.
@@ -87,6 +95,7 @@ const table = (rows, sortable = false, collapsible = false, collapsed = false) =
 	if (collapsible) classes.push('mw-collapsible');
 	if (collapsed) classes.push('mw-collapsed');
 
+	// TODO: make it so I can set default style (text-align: center|left)
 	return `{| class="${classes.join(' ')}" width="100%" style="text-align: center; font-size: 15px;"\n${rows.join('\n')}\n|}`;
 };
 
@@ -97,6 +106,7 @@ const table = (rows, sortable = false, collapsible = false, collapsed = false) =
  */
 const tableHeader = (headers) =>
 	tableRow(headers.map(header => {
+		// TODO: make it so I don't have to include the attrs on a string header
 		header.attrs.style = 'background-color: var(--wiki-accent-color); color: #ffffff;';
 		return header;
 	}), true);
@@ -126,4 +136,20 @@ const tableRow = (columns, header = false) => {
 	return `|-\n${separator} ${formattedColumns.join(`\n${separator} `)}`;
 };
 
-export default { bold, icon, italic, link, list, rawScience, table, tableHeader, tableRow };
+const timestamp = () => {
+	const end = performance.now();
+
+	let duration = `${Number((end).toFixed(1))}ms`;
+	if (end >= 60000) {
+		duration = `${Number((end / 10000).toFixed(1))}m`;
+	} else if (end >= 1000) {
+		duration = `${Number((end / 1000).toFixed(1))}s`
+	}
+
+	console.log(comment(`Generated on ${new Date().toISOString()} in ${duration}`));
+}
+
+const title = (text, tier = 1) =>
+	`\n${'='.repeat(tier)} ${text} ${'='.repeat(tier)}\n`;
+
+export default { bold, code, comment, icon, italic, link, list, rawScience, table, tableHeader, tableRow, timestamp, title };

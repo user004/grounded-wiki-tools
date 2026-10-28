@@ -71,3 +71,5 @@ Object.values(mutations).forEach(mutation => {
 
 	console.groupEnd();
 });
+
+wiki.timestamp();

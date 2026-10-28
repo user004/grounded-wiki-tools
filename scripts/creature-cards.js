@@ -150,3 +150,4 @@ const tables = Object.keys(categorizedCards).map(category => {
 
 console.log(tables.join('\n\n'));
 
+wiki.timestamp();

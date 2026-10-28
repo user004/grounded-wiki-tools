@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import ue from '../utils/ue.js';
 import text from '../utils/text.js';
+import wiki from '../utils/wiki.js';
 
 const allTables = text.getAllTables();
 
@@ -128,3 +129,5 @@ for (let [key, creature] of Object.entries(creatures)) {
 
 	console.log(creatureData);
 }
+
+wiki.timestamp();

@@ -1,3 +1,5 @@
+// TODO: this needs some work
+
 import text from '../utils/text.js';
 import ue from '../utils/ue.js';
 import wiki from '../utils/wiki.js';
@@ -95,3 +97,5 @@ const headerRows = [
 ];
 
 // console.log(wiki.table([...headerRows, ...questRows], false, true));
+
+wiki.timestamp();

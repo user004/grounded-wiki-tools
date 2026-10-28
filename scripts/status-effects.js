@@ -2,6 +2,7 @@ import fs from 'fs';
 import constants from '../utils/constants.js';
 import text from '../utils/text.js';
 import ue from '../utils/ue.js';
+import wiki from '../utils/wiki.js';
 
 const allTables = text.getAllTables();
 
@@ -11,7 +12,7 @@ let statusGroups = {
 		armor: {
 			piece: [],
 			class: [],
-			sleek: [],// HiddenStatusEffects
+			sleek: [],
 			sets: [],
 		},
 		consumables: [],
@@ -20,7 +21,6 @@ let statusGroups = {
 		misc: [],
 	},
 	negative: {
-		weapons: [],// not needed?
 		armor: [],
 		consumables: [],
 		trinkets: [],
@@ -28,27 +28,41 @@ let statusGroups = {
 	},
 };
 
-// weapons, armor-piece, armor-class, armor-sleek, trinkets, consumables
-const allItems = ue.parsePathData('/Game/Blueprints/Items/Table_AllItems.0').Rows || {};
+const listReadable = (list) => {
+	switch (list.length) {
+		case 1:
+			return `a ${list.join()}`;
 
-// sets
-const allSets = ue.parsePathData('/Game/Blueprints/Items/ItemTables/Table_ItemSets.0').Rows || {};
+		case 2:
+			return list.join(' or ');
 
-// mutations
-const allMutations = ue.parsePathData('/Game/Design/Perks/Table_Perks.0')?.Rows || [];
+		// 3+
+		default:
+			const lastItem = list.pop();
+			return `${list.join(', ')}, or ${lastItem}`;
+	}
+}
 
-// consumables
-const allConsumables = ue.parsePathData('/Game/Blueprints/Items/Table_Consumables.0')?.Rows || [];
+const translateDetails = (effect) => {
+	// TODO: add more
+	switch (effect.Type) {
+		case 'EStatusEffectType::TriggerExtraAttack':
+			if (effect.key === 'ComboFinishParryWindow') console.log(effect.DamageData);
 
-// const getDamageDetails = () => { };
+			return `Deals ${effect?.DamageData?.Damage} ${effect?.DamageData?.damageType} damage on ${listReadable(effect.DamageSourceTags)}`;
+
+		default:
+			return 'DETAILS GO HERE';
+	}
+};
 
 const getStatusDetails = (key, statusObject) => {
-	if (statusObject === undefined) {
-		// console.log({ key, statusObject });
-	}
-
-	const name = text.getStringFromTable(allTables, statusObject.DisplayData?.Name);
+	const name = text.getStringFromTable(allTables, statusObject.DisplayData?.Name) || key;
 	const description = text.getStringFromTable(allTables, statusObject.DisplayData?.Description);
+
+	if (key === 'ComboFinishParryWindowProc' || key === 'CoaltanaParryAttackIncrease') {
+		// console.log();
+	}
 
 	const flatKeys = [
 		'Type',
@@ -59,6 +73,8 @@ const getStatusDetails = (key, statusObject) => {
 		'MaxStackCount',
 		'DamageTypeFlags',
 		'DamageType',
+		'AttackChargeType',
+		'DamageSourceTags',
 	];
 
 	let statusData = {
@@ -68,10 +84,12 @@ const getStatusDetails = (key, statusObject) => {
 	};
 
 	flatKeys.forEach(key => {
+		// if (statusData.key === 'ComboFinishParryWindow') console.log(key, statusObject[key], !!statusObject[key]);
 		if (!Object.hasOwn(statusObject, key) || !statusObject[key]) return;
 
 		switch (key) {
 			case 'DamageTypeFlags':
+				// if (statusData.key === 'ComboFinishParryWindow') console.log(statusObject[key]);
 				statusData.DamageTypes = ue.getDamageTypes(statusObject[key]);
 				break;
 
@@ -88,13 +106,9 @@ const getStatusDetails = (key, statusObject) => {
 		ActorSpawnParameters
 	*/
 
-	// TODO: figure this out
-	// if (key === 'ArmorAntSet') console.log(statusObject.ExtraData);
-
 	let extraData;
 	if (statusObject.ExtraData && statusObject.ExtraData.DataTable) {
 		extraData = ue.getDataTableItem(statusObject.ExtraData) || {};
-		// if (key === 'PerkFistsTier3') console.log(statusObject.ExtraData.RowName, extraData);
 
 		const objKeys = [
 			'DamageData',
@@ -109,24 +123,18 @@ const getStatusDetails = (key, statusObject) => {
 
 		let damageObjects = [];
 		objKeys.forEach(objKey => {
-			// if (objKey === 'DamageDataSecondary') console.log(objKey, extraData[objKey]);
 			// TODO: maybe don't need to figure this out?
 			if (Array.isArray(extraData[objKey]) && extraData[objKey].length > 0) {
-				// console.log('isArray with stuff in it!')
-				// console.log(key, objKey, extraData[objKey].length);
 				extraData[objKey].forEach(data => {
 					if (Object.hasOwn(data, 'DataTable') &&
 						Object.hasOwn(data, 'RowName')) {
 						const extraArrayData = ue.getDataTableItem(data);
-						// console.log({ extraArrayData });
 
 						const subStatusData = getStatusDetails(data.RowName, extraArrayData);
 						for (let [key, value] of Object.entries(subStatusData)) {
-							// console.log({ key, value });
 							if (key === 'key') continue;
 							statusData[key] = value;
 						}
-						// console.log(statusData);
 					} else {
 						statusData[objKey] = data;
 					}
@@ -134,7 +142,6 @@ const getStatusDetails = (key, statusObject) => {
 			}
 
 			if (!Object.hasOwn(extraData, objKey)) return;
-			// console.log(objKey);
 
 			const damageKeys = [
 				'Damage',
@@ -156,19 +163,23 @@ const getStatusDetails = (key, statusObject) => {
 					extraData[objKey][damageKey] !== 'EStatusEffectType::None') {
 					// TODO: need to figure out status effect array instead of just including it
 					if (Array.isArray(extraData[objKey][damageKey]) && extraData[objKey][damageKey].length > 0) {
-						// if (key === 'PerkFistsTier3' && damageKey === 'StatusEffects') console.log(extraData[objKey][damageKey]);
-
 						damageLoop[damageKey] = extraData[objKey][damageKey].map(status => {
-							if (Object.hasOwn(status, 'DataTable')) {
+							if (damageKey === 'StatusEffects') {
 								const statusObject = ue.getDataTableItem(status);
-								return text.getStringFromTable(allTables, statusObject.DisplayData?.Name);
-							} else if (Object.hasOwn(status, 'HazardClass')) {
-								// console.log({ key, objKey, damageKey, status });
-								const [hazardPath, hazardKey] = status.HazardClass.AssetPathName.split('.');
-								const hazardArray = JSON.parse(fs.readFileSync(`data${hazardPath}.json`, 'utf-8'));
-								const hazardObject = hazardArray.find(({ Type }) => Type === hazardKey);
-								// console.log(hazardObject.Properties);
-								// TODO: figure this out
+								const statusName = text.getStringFromTable(allTables, statusObject.DisplayData?.Name);
+								// if (key === 'ComboFinishParryWindow') console.log(statusObject)
+								return getStatusDetails(status.RowName, statusObject);
+							} else {
+
+								if (Object.hasOwn(status, 'DataTable')) {
+									const statusObject = ue.getDataTableItem(status);
+									return text.getStringFromTable(allTables, statusObject.DisplayData?.Name);
+								} else if (Object.hasOwn(status, 'HazardClass')) {
+									const [hazardPath, hazardKey] = status.HazardClass.AssetPathName.split('.');
+									const hazardArray = JSON.parse(fs.readFileSync(`data${hazardPath}.json`, 'utf-8'));
+									const hazardObject = hazardArray.find(({ Type }) => Type === hazardKey);
+									// TODO: figure this out
+								}
 							}
 
 							return '';
@@ -201,16 +212,13 @@ const getStatusDetails = (key, statusObject) => {
 				Object.hasOwn(damageLoop, 'HitStun') ||
 				Object.hasOwn(damageLoop, 'PoiseDamage') ||
 				Object.hasOwn(damageLoop, 'Pushback') ||
-				(Object.hasOwn(damageLoop, 'StatusEffectsToApply') &&
-					Array.isArray(damageLoop.StatusEffectsToApply) &&
-					damageLoop.StatusEffectsToApply.length) ||
-				(Object.hasOwn(damageLoop, 'StatusEffects') &&
-					Array.isArray(damageLoop.StatusEffects) &&
-					damageLoop.StatusEffects.length)
+				// TODO: replace with hasEffectArray
+				hasEffectArray(damageLoop) ||
+				hasEffectArray(damageLoop, 'StatusEffectsToApply')
 			)) {
 				statusData[objKey] = damageLoop;
 			} else {
-				// console.log(damageLoop);
+				// TODO: what is this?
 			}
 		});
 	}
@@ -224,23 +232,50 @@ const formatTime = (seconds) => {
 	return `${seconds}s`;
 };
 
-// items
-Object.values(allItems).filter(item =>
-	(Object.hasOwn(item.EquippableData, 'StatusEffects') &&
-		item.EquippableData.StatusEffects.length > 0) ||
-	(Object.hasOwn(item.EquippableData, 'HiddenStatusEffects') &&
-		item.EquippableData.HiddenStatusEffects.length > 0))
-	.forEach(item => {
-		const itemName = text.getStringFromTable(allTables, item.LocalizedDisplayName);
-		if (!itemName) return;
-		// console.log(itemName, item.Slot);
-		if (item.ItemType === 'EItemType::PersonalKeyItem') return;
+const hasEffectArray = (object, key = 'StatusEffects') =>
+	Object.hasOwn(object, key) &&
+	Array.isArray(object[key]) &&
+	object[key].length > 0;
 
-		// is ammo?
-		// AmmoAttackReference.RowName !== 'None' - is ammo
-		// AmmoAttackData - has ammo
-		// AmmoUseStyle - 1: bow?, 6: harpoon, 7: paintball
+const getMagnetism = (bool) => bool ? 'negative' : 'positive';
 
+/* items - weapons, armor-piece, armor-class, armor-sleek, trinkets, consumables
+Table_Allitems
+	Rows
+		ItemKey
+			EquippableData
+				StatusEffects[]
+					-> DataTable
+				HiddenStatusEffects[]
+					-> DataTable
+			ConsumableData[]
+				-> DataTable
+					StatusEffects[]
+*/
+const allItems = ue.parsePathData('/Game/Blueprints/Items/Table_AllItems.0').Rows || {};
+Object.values(allItems).forEach(item => {
+	// skip key items
+	if ([
+		'EItemType::PartyKeyItem',
+		'EItemType::PersonalKeyItem',
+	].includes(item.ItemType)) return;
+
+	const itemName = text.getStringFromTable(allTables, item.LocalizedDisplayName);
+	if (!itemName) return;
+
+	const hasEquipableData = Object.hasOwn(item, 'EquippableData');
+	const hasStatusEffects = hasEquipableData && hasEffectArray(item.EquippableData);
+	const hasHiddenStatusEffects = hasEquipableData && hasEffectArray(item.EquippableData, 'HiddenStatusEffects');
+	const hasConsumableData = hasEffectArray(item, 'ConsumableData');
+
+	// skip if doesn't have one of these fields
+	if (!hasStatusEffects &&
+		!hasHiddenStatusEffects &&
+		!hasConsumableData) {
+		return;
+	}
+
+	if (hasStatusEffects) {
 		item.EquippableData.StatusEffects.forEach(statusTable => {
 			// skip dev tables
 			if (statusTable.DataTable.ObjectName.includes('DT_StatusEffects')) return;
@@ -252,7 +287,8 @@ Object.values(allItems).filter(item =>
 			const statusObject = ue.getDataTableItem(statusTable);
 			const statusDetails = getStatusDetails(statusTable.RowName, statusObject);
 
-			let magnetism = statusObject.bIsNegativeEffectInUI ? 'negative' : 'positive';
+			let magnetism = getMagnetism(statusObject.bIsNegativeEffectInUI);
+
 			// random negative but actually positive things
 			if ([
 				'PollenSlow',
@@ -281,7 +317,6 @@ Object.values(allItems).filter(item =>
 					// weapon
 					case 'EEquipmentSlot::MainHand':
 					case 'EEquipmentSlot::OffHand':
-						// console.log('weapon', itemName);
 						groupObject = groupObject.weapons;
 						break;
 
@@ -297,7 +332,6 @@ Object.values(allItems).filter(item =>
 
 					// trinket
 					case 'EEquipmentSlot::Glider':
-						// console.log('trinkets', itemName);
 						groupObject = groupObject.trinkets;
 						break;
 
@@ -320,19 +354,32 @@ Object.values(allItems).filter(item =>
 				groupObject.push(statusDetails);
 			}
 		});
+	}
 
+	if (hasHiddenStatusEffects) {
 		item.EquippableData.HiddenStatusEffects.forEach(statusTable => {
+			// skip dev tables
 			if (statusTable.DataTable.ObjectName.includes('DT_StatusEffects')) return;
 
 			const statusObject = ue.getDataTableItem(statusTable);
 			const statusDetails = getStatusDetails(statusTable.RowName, statusObject);
 
-			let groupObject = statusGroups.positive;
+			let magnetism = getMagnetism(statusObject.bIsNegativeEffectInUI);
+
+			// random negative but actually positive things
+			if ([
+				// TODO: still need  this?
+			].includes(statusTable.RowName)) {
+				magnetism = 'positive';
+			}
+
+			// determine path to groups object
+			let groupObject = statusGroups[magnetism];
+
 			switch (item.Slot) {
 				// weapon
 				case 'EEquipmentSlot::MainHand':
 				case 'EEquipmentSlot::OffHand':
-					// console.log('weapon', itemName);
 					groupObject = groupObject.weapons;
 					break;
 
@@ -345,7 +392,7 @@ Object.values(allItems).filter(item =>
 
 				// misc? consumable?
 				default:
-					console.log('unknown');
+					groupObject = groupObject.misc;
 					break;
 			}
 
@@ -361,54 +408,235 @@ Object.values(allItems).filter(item =>
 				groupObject.push(statusDetails);
 			}
 		});
-	});
+	}
 
-// sets
-for (let [key, set] of Object.entries(allSets)) {
-	// console.log(key, set);
+	if (hasConsumableData) {
+		item.ConsumableData.forEach(consumableData => {
+			// ConsumableEffects
+			const consumableObject = ue.getDataTableItem(consumableData);
+			const consumableEffects = [];
+			if (hasEffectArray(consumableObject, 'ConsumableEffects')) {
+				consumableEffects.push(...consumableObject.ConsumableEffects);
+			} else if (hasEffectArray(consumableObject)) {
+				consumableEffects.push(...consumableObject.StatusEffects);
+			}
+
+			consumableEffects.forEach(statusTable => {
+				if (statusTable.DataTable.ObjectName.includes('DT_StatusEffects')) return;
+
+				const statusObject = ue.getDataTableItem(statusTable);
+				const statusDetails = getStatusDetails(statusTable.RowName, statusObject);
+
+				let magnetism = getMagnetism(statusObject.bIsNegativeEffectInUI);
+
+				// random negative but actually positive things
+				if ([
+					// TODO: still need  this?
+				].includes(statusTable.RowName)) {
+					magnetism = 'positive';
+				}
+
+				// determine path to groups object
+				let groupObject = statusGroups[magnetism].consumables;
+
+				const existingId = groupObject.findIndex(temp =>
+					temp.key === statusTable.RowName);
+				if (existingId !== -1) {
+					// already there
+					const existingObject = groupObject[existingId];
+					existingObject.source.push(itemName)
+					groupObject[existingId] = existingObject;
+				} else {
+					statusDetails.source = [itemName];
+					groupObject.push(statusDetails);
+				}
+			})
+		});
+	}
+});
+
+/* sets
+Table_Itemsets
+	Rows
+		SetKey
+			StatusEffects[]
+				-> DataTable
+*/
+const allSets = ue.parsePathData('/Game/Blueprints/Items/ItemTables/Table_ItemSets.0').Rows || {};
+Object.values(allSets).forEach(set => {
+	if (!hasEffectArray(set)) return;
 
 	set.StatusEffects.forEach(statusTable => {
+		// skip dev tables
 		if (statusTable.DataTable.ObjectName.includes('DT_StatusEffects')) return;
 
 		const statusObject = ue.getDataTableItem(statusTable);
-		// why aren't you grabbing
 		const statusDetails = getStatusDetails(statusTable.RowName, statusObject);
-		statusDetails.source = [statusTable.RowName];
 
-		statusGroups.positive.armor.sets.push(statusDetails);
+		let magnetism = getMagnetism(statusObject.bIsNegativeEffectInUI);
+
+		// random negative but actually positive things
+		if ([
+			// TODO: still need  this?
+		].includes(statusTable.RowName)) {
+			magnetism = 'positive';
+		}
+
+		// determine path to groups object
+		let groupObject = statusGroups[magnetism].armor.sets;
+
+		const existingId = groupObject.findIndex(temp =>
+			temp.key === statusTable.RowName);
+		if (existingId !== -1) {
+			// already there
+			const existingObject = groupObject[existingId];
+			existingObject.source.push(statusTable.RowName)
+			groupObject[existingId] = existingObject;
+		} else {
+			statusDetails.source = [statusTable.RowName];
+			groupObject.push(statusDetails);
+		}
 	});
+});
+
+/* mutations
+Table_Perks
+	Rows
+		PerkKey
+			Tiers[]
+				Reward
+					StatusEffects[]
+						-> DataTable
+*/
+const allMutations = ue.parsePathData('/Game/Design/Perks/Table_Perks.0')?.Rows || [];
+Object.values(allMutations).forEach(mutation => {
+	if (!hasEffectArray(mutation, 'Tiers')) return;
+
+	const mutationName = text.getStringFromTable(allTables, mutation.LocalizedDisplayName);
+	if (!mutationName) return;
+
+	mutation.Tiers.flatMap(tier => tier.Reward).forEach(tier => {
+		if (!hasEffectArray(tier)) return;
+
+		tier.StatusEffects.forEach(statusTable => {
+			// skip dev tables
+			if (statusTable.DataTable.ObjectName.includes('DT_StatusEffects')) return;
+
+			const statusObject = ue.getDataTableItem(statusTable);
+			const statusDetails = getStatusDetails(statusTable.RowName, statusObject);
+
+			let magnetism = getMagnetism(statusObject.bIsNegativeEffectInUI);
+
+			// random negative but actually positive things
+			if ([
+				// TODO: still need  this?
+			].includes(statusTable.RowName)) {
+				magnetism = 'positive';
+			}
+
+			// determine path to groups object
+			let groupObject = statusGroups[magnetism].mutations;
+
+			const existingId = groupObject.findIndex(temp =>
+				temp.key === statusTable.RowName);
+			if (existingId !== -1) {
+				// already there
+				const existingObject = groupObject[existingId];
+				existingObject.source.push(mutationName)
+				groupObject[existingId] = existingObject;
+			} else {
+				statusDetails.source = [mutationName];
+				groupObject.push(statusDetails);
+			}
+		});
+	});
+});
+
+
+const sortEffects = (a, b) => {
+	if (a.name < b.name) return -1;
+	if (a.name > b.name) return 1;
+	return 0;
+};
+
+const tableHeader = wiki.tableHeader([
+	{
+		attrs: {
+			class: 'unsortable',
+			width: '10%',
+		},
+		content: 'Effect',
+	},
+	{
+		attrs: {
+			class: 'unsortable',
+			width: '35%',
+		},
+		content: 'Details',
+	},
+	{
+		attrs: {
+			class: 'unsortable',
+			width: '35%',
+		},
+		content: 'In-Game Description',
+	},
+	{
+		attrs: {
+			style: '',
+			width: '20%',
+		},
+		content: 'In-Game Description',
+	}
+]);
+
+const recurseStatusGroups = (statusGroup, tier = 1) => {
+	for (let [key, value] of Object.entries(statusGroup)) {
+
+		if (Array.isArray(value)) {
+			const statusRows = value.sort(sortEffects).map(effect => {
+				// TODO: testing
+				if (effect.Type !== 'EStatusEffectType::TriggerExtraAttack') return null;
+
+				return wiki.tableRow([
+					`<span id="${effect.key}">[[File:${effect.name}.png|50px]]</span><br>${effect.name}`,
+					{
+						attrs: {
+							style: 'text-align: left;',
+						},
+						content: translateDetails(effect),
+						// content: 'DETAILS GO HERE',
+					},
+					{
+						attrs: {
+							style: 'text-align: left;',
+						},
+						content: effect.description,
+					},
+					{
+						attrs: {
+							style: 'text-align: left;',
+						},
+						content: wiki.list(effect.source.sort().map(item => wiki.link(item))),
+					},
+				]);
+			}).filter(item => item !== null);
+
+			const statusTable = wiki.table([tableHeader, ...statusRows], true, true, false);
+
+			// console.log(statusTable);
+
+		} else {
+			recurseStatusGroups(value, tier + 1);
+		}
+	}
 }
 
-// mutations
-Object.values(allMutations).forEach(mutation => {
-	const mutationName = text.getStringFromTable(allTables, mutation.LocalizedDisplayName);
+recurseStatusGroups(statusGroups);
 
-	mutation.Tiers.flatMap(tier => tier.Reward).flatMap(tier => tier.StatusEffects).forEach(statusTable => {
-		if (statusTable.DataTable.ObjectName.includes('DT_StatusEffects')) return;
+wiki.timestamp();
 
-		const statusObject = ue.getDataTableItem(statusTable);
-		const statusDetails = getStatusDetails(statusTable.RowName, statusObject);
-		statusDetails.source = [mutationName];
+process.exit(0);
 
-		statusGroups.positive.mutations.push(statusDetails);
-	})
-});
+console.log(wiki.code(statusGroups));
 
-// consumables
-Object.values(allConsumables).forEach(consumable => {
-	const consumableName = text.getStringFromTable(allTables, consumable.LocalizedDisplayName);
-
-	consumable.StatusEffects.forEach(statusTable => {
-		if (statusTable.DataTable.ObjectName.includes('DT_StatusEffects')) return;
-
-		const statusObject = ue.getDataTableItem(statusTable);
-		const statusDetails = getStatusDetails(statusTable.RowName, statusObject);
-		let magnetism = statusObject.bIsNegativeEffectInUI ? 'negative' : 'positive';
-
-		statusDetails.source = [consumableName];
-
-		statusGroups[magnetism].consumables.push(statusDetails);
-	})
-});
-
-console.log(statusGroups);
