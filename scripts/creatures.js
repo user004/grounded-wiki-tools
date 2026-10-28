@@ -3,10 +3,7 @@ import ue from '../utils/ue.js';
 import text from '../utils/text.js';
 import wiki from '../utils/wiki.js';
 
-const allTables = text.getAllTables();
-
 const creatures = ue.parsePathData('/Game/Blueprints/DataTables/Table_Bestiary.0').Rows || [];
-
 
 for (let [key, creature] of Object.entries(creatures)) {
 	// skip others for now
@@ -66,7 +63,7 @@ for (let [key, creature] of Object.entries(creatures)) {
 
 		let itemName = '';
 		if (itemObject && Object.hasOwn(itemObject, 'LocalizedDisplayName')) {
-			itemName = text.getStringFromTable(allTables, itemObject.LocalizedDisplayName);
+			itemName = text.getStringFromTable(itemObject.LocalizedDisplayName);
 		} else {
 			const pathParts = lootItem.ActorToSpawn.AssetPathName.split('.');
 
@@ -77,7 +74,7 @@ for (let [key, creature] of Object.entries(creatures)) {
 
 			const combinedProps = ue.deepMerge(templateObject.Properties, creatureObject.Properties);
 
-			itemName = text.getStringFromTable(allTables, combinedProps.CharacterName);
+			itemName = text.getStringFromTable(combinedProps.CharacterName);
 		}
 
 		return {
@@ -92,7 +89,7 @@ for (let [key, creature] of Object.entries(creatures)) {
 
 		let itemName = '';
 		if (itemObject && Object.hasOwn(itemObject, 'LocalizedDisplayName')) {
-			itemName = text.getStringFromTable(allTables, itemObject.LocalizedDisplayName);
+			itemName = text.getStringFromTable(itemObject.LocalizedDisplayName);
 		} else {
 			const pathParts = lootItem.ActorToSpawn.AssetPathName.split('.');
 
@@ -103,7 +100,7 @@ for (let [key, creature] of Object.entries(creatures)) {
 
 			const combinedProps = ue.deepMerge(templateObject.Properties, creatureObject.Properties);
 
-			itemName = text.getStringFromTable(allTables, combinedProps.CharacterName);
+			itemName = text.getStringFromTable(combinedProps.CharacterName);
 		}
 
 		const lootData = {

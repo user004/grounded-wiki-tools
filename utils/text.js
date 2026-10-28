@@ -4,27 +4,30 @@ import path from 'node:path';
 import ue from './ue.js';
 import wiki from './wiki.js';
 
+let stringTableCache = [];
+
 /**
  * Gets all localized string tables for a specific language.
  * @param {'dede' | 'enus' | 'eses' | 'esmx' | 'frfr' | 'itit' | 'jajp' | 'kokr' | 'ptbr' | 'zhch' | 'zhtw'} [lang=enus] - the language to get
  * @returns {object[]} The merged localized string tables.
  */
-const getAllTables = (lang = 'enus') => {
-	let allTables = [];
+const getAllStringTables = (lang = 'enus') => {
+	if (stringTableCache.length > 0) return stringTableCache;
 
+	// TODO: replace this try/catch?
 	try {
 		fs.globSync(`data/Game/Exported/*/Localized/${lang}/Text/Text_${lang}.json`)
 			.sort()
 			.forEach(textFile => {
 				JSON.parse(fs.readFileSync(textFile, 'utf-8'))?.[0]?.Properties?.StringTables
 					.forEach(stringTable => {
-						const foundIndex = allTables.findIndex(table =>
+						const foundIndex = stringTableCache.findIndex(table =>
 							table.Key === stringTable.Key);
 
 						if (foundIndex === -1) {
-							allTables.push(stringTable);
+							stringTableCache.push(stringTable);
 						} else {
-							allTables[foundIndex].Value.Entries
+							stringTableCache[foundIndex].Value.Entries
 								.push(...stringTable.Value.Entries);
 						}
 					});
@@ -33,7 +36,7 @@ const getAllTables = (lang = 'enus') => {
 		console.error(error);
 	}
 
-	return allTables;
+	return stringTableCache;
 };
 
 /**
@@ -42,8 +45,8 @@ const getAllTables = (lang = 'enus') => {
  * @param {string} string - Text to find.
  * @returns {string|undefined} The matching string ID, if found.
  */
-const getIdFromTable = (stringTables, string) =>
-	stringTables
+const getIdFromTable = (string) =>
+	getAllStringTables()
 		.flatMap(table => table.Value.Entries)
 		.find(({ Value: { DefaultText } }) =>
 			DefaultText.localeCompare(string, undefined, {
@@ -59,14 +62,16 @@ const getIdFromTable = (stringTables, string) =>
  * @param {number} [StringObject.StringID=0] - The string ID.
  * @returns {string|false} The localized string, or false if the table or entry is missing.
  */
-const getStringFromTable = (stringTables, { StringTableID = 0, StringID = 0 } = {}) => {
+const getStringFromTable = ({ StringTableID = 0, StringID = 0 } = {}) => {
 	// console.log('getStringFromTable', { StringTableID, StringID });
 	// TODO: return something other than false?
+	const hasTableId = StringTableID && StringTableID > 0;
+	const hasStringId = StringID && StringID > 0;
 
 	const tableIdToString = constants.getConstant('tableIdToString');
 	const stringTableString = tableIdToString[StringTableID];
 	if (!stringTableString) return false;
-	const foundTableObject = stringTables.find(({ Key }) => Key === `${stringTableString}`);
+	const foundTableObject = getAllStringTables().find(({ Key }) => Key === `${stringTableString}`);
 	if (!foundTableObject) return false;
 	const foundStringObject = foundTableObject.Value.Entries.find(({ Key }) => Key === `${StringID}`);
 	if (!foundStringObject) return false;
@@ -104,4 +109,4 @@ const replaceFormat = (format, replace) => {
 	return replaced;
 };
 
-export default { getAllTables, getIdFromTable, getStringFromTable, replaceFormat };
+export default { getAllStringTables, getIdFromTable, getStringFromTable, replaceFormat };

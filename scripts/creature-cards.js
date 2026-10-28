@@ -95,8 +95,6 @@ const fixTier = (tier) => {
 	}
 }
 
-const allTables = text.getAllTables();
-
 const keyItems = ue.parsePathData('/Game/Blueprints/Items/ItemTables/Table_Items_KeyItems.0').Rows || [];
 
 const creatureCards = Object.values(keyItems).filter(keyItem => keyItem.KeyItemCategory?.TagName === 'KeyItem.Entities');
@@ -116,7 +114,7 @@ for (let [key, category] of Object.entries(categoryMap)) {
 	categorizedCards[key] = cards.map(card => {
 		return {
 			tier: card.Tier,
-			title: text.getStringFromTable(allTables, card.LocalizedDisplayName),
+			title: text.getStringFromTable(card.LocalizedDisplayName),
 		};
 	}).sort((a, b) => {
 		if (a.tier < b.tier) return -1;

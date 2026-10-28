@@ -2,7 +2,6 @@ import text from '../utils/text.js';
 import ue from '../utils/ue.js';
 import wiki from '../utils/wiki.js';
 
-const allTables = text.getAllTables();
 
 const fixUnlocks = (unlock) => {
 	let replaced = unlock;
@@ -32,7 +31,7 @@ if (args.length) {
 }
 // console.log(args);
 
-// const testing = text.getIdFromTable(allTables, args[0]);
+// const testing = text.getIdFromTable(args[0]);
 // console.log(testing);
 
 const allItems = ue.parsePathData('/Game/Blueprints/Items/Table_AllItems.0')?.Rows || [];
@@ -46,7 +45,7 @@ const allItems = ue.parsePathData('/Game/Blueprints/Items/Table_AllItems.0')?.Ro
 const unlockables = Object.values(allItems)
 	.filter(({ NewResearchUnlockRecipes }) => NewResearchUnlockRecipes.length > 0)
 	.map(({ LocalizedDisplayName, NewResearchUnlockRecipes }) => {
-		const itemName = text.getStringFromTable(allTables, LocalizedDisplayName);
+		const itemName = text.getStringFromTable(LocalizedDisplayName);
 		// console.group(itemName);
 		const unlocks = NewResearchUnlockRecipes.map(unlockRecipe => {
 			const recipe = ue.getDataTableItem(unlockRecipe);
@@ -55,7 +54,7 @@ const unlockables = Object.values(allItems)
 				recipe.CraftedItem ||
 				recipe.Building || {});
 
-			const craftedName = text.getStringFromTable(allTables, crafted.LocalizedDisplayName);
+			const craftedName = text.getStringFromTable(crafted.LocalizedDisplayName);
 
 			return wiki.link(fixUnlocks(craftedName));
 		})
@@ -96,7 +95,7 @@ console.log(wiki.table([header, ...unlockables], true, true));
 /*
 for (const [key, { LocalizedDisplayName, NewResearchUnlockRecipes }] of Object.entries(allItems)) {
 	if (NewResearchUnlockRecipes.length > 0) {
-		const itemName = text.getStringFromTable(allTables, LocalizedDisplayName);
+		const itemName = text.getStringFromTable(LocalizedDisplayName);
 		// console.log(itemName);
 		const unlocks = NewResearchUnlockRecipes.map(unlock => {
 			const unlockObject = ue.getDataTableItem(unlock);

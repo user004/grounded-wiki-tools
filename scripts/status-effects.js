@@ -4,8 +4,6 @@ import text from '../utils/text.js';
 import ue from '../utils/ue.js';
 import wiki from '../utils/wiki.js';
 
-const allTables = text.getAllTables();
-
 let statusGroups = {
 	positive: {
 		weapons: [],
@@ -46,8 +44,19 @@ const listReadable = (list) => {
 const translateDetails = (effect) => {
 	// TODO: add more
 	switch (effect.Type) {
+		case 'EStatusEffectType::AttackDamage':
+			return `Increases damage ${effect.Value} for ${effect.Duration}.`;
+
+		case 'EStatusEffectType::PerfectBlockTime':
+			return `Extends perfect block timing by ${effect.Value}s for ${effect.Duration}.`;
+
 		case 'EStatusEffectType::TriggerExtraAttack':
-			if (effect.key === 'ComboFinishParryWindow') console.log(effect.DamageData);
+			if (effect.key === 'ComboFinishParryWindow' ||
+				effect.key === 'ComboFinishParryWindowProc' ||
+				effect.key === 'CoaltanaParryAttackIncrease'
+			) {
+				console.log(effect.key, effect);
+			}
 
 			return `Deals ${effect?.DamageData?.Damage} ${effect?.DamageData?.damageType} damage on ${listReadable(effect.DamageSourceTags)}`;
 
@@ -56,9 +65,99 @@ const translateDetails = (effect) => {
 	}
 };
 
+const getStatusDetailsNew = (dataTableObject) => {
+	const hasDataTable = Object.hasOwn(dataTableObject, 'DataTable') && dataTableObject.DataTable;
+	const hasObjectPath = hasDataTable && Object.hasOwn(dataTableObject.DataTable, 'ObjectPath');
+	const hasRowName = Object.hasOwn(dataTableObject, 'RowName') && dataTableObject.RowName !== 'None';
+
+	if (!hasDataTable || !hasObjectPath || !hasRowName) return null;// TODO: what return?
+
+	// if (dataTableObject.DataTable.ObjectName.includes('DT_StatusEffects')) return;
+
+	// 1682 total, 383 have ExtraData
+	const itemPaths = [
+		'AllAttacks',// 181
+		'CDT_PerceptionRangeMultipliers',// 1
+		'CDT_ProximityTriggers',// 4
+		'CreatureAttacks',// 3
+		'Table_StatusEffects',// 181
+		'Table_Teams',// 13
+	];
+
+	const setPaths = [
+		'Table_StatusEffects',// 60
+	];
+
+	const perPaths = [
+		'Table_StatusEffects',
+		'Table_StatusEffects_4',
+		'Table_StatusEffects_BuggyMutations5',
+	];
+
+
+	const pathMatches = itemPaths.any(path => dataTableObject.DataTable.ObjectPath.contains(path));
+	if (!pathMatches) return null;// TODO: still don't know what to do?
+
+
+	// DisplayData - Name/Description
+
+	// things I want
+	const needKeys = [
+		'Type',
+		'Value',
+		'DurationType',
+		'Duration',
+		'Interval',
+		'MaxStackCount',
+		'DamageTypeFlags',
+		'DamageType',
+		'AttackChargeType',
+		'DamageSourceTags',
+		'ExtraData',// most of the actual info
+		'bIsNegativeEffectInUI',
+	];
+
+	// unsure what these do
+	const unknownKeys = [
+		'ApplicationTags',
+		'EffectTags',
+		'BlockingDamageSourceTags',
+		'DamageTargetTags',
+		'BlockingDamageTargetTags',
+		'UniqueTag',
+		'BlockTags',
+		'RequiredTags',
+		'ApplyType',
+		'AttackChargeType',// EStatusEffectAttackChargeType::[Charged|Default|Uncharged]
+		'ClearFlags',// bitwise flag
+		'SpawnedActor',
+		'ScreenEffectData',
+		'ActivationVFX',
+		'ActivationSFXAttached',
+		'ActivationSFXAtLocation',
+		'bShowInUI',// not sure if care
+		'bTickWhileMounted',
+	];
+
+	// confirmed all the same, don't need... yet
+	const unusedKeys = [
+		'DisplayData',// not in the loop at least
+		'RequiredTagsToTakeEffect',
+		'AttackItemOwner',
+		'DeactivationVFX',
+		'DeactivationSFXAttached',
+		'DeactivationSFXAtLocation',
+		'Anim',
+		'ActorSpawnParameters',
+	];
+
+
+
+};
+
 const getStatusDetails = (key, statusObject) => {
-	const name = text.getStringFromTable(allTables, statusObject.DisplayData?.Name) || key;
-	const description = text.getStringFromTable(allTables, statusObject.DisplayData?.Description);
+	const name = text.getStringFromTable(statusObject.DisplayData?.Name) || key;
+	const description = text.getStringFromTable(statusObject.DisplayData?.Description);
 
 	if (key === 'ComboFinishParryWindowProc' || key === 'CoaltanaParryAttackIncrease') {
 		// console.log();
@@ -166,14 +265,14 @@ const getStatusDetails = (key, statusObject) => {
 						damageLoop[damageKey] = extraData[objKey][damageKey].map(status => {
 							if (damageKey === 'StatusEffects') {
 								const statusObject = ue.getDataTableItem(status);
-								const statusName = text.getStringFromTable(allTables, statusObject.DisplayData?.Name);
+								const statusName = text.getStringFromTable(statusObject.DisplayData?.Name);
 								// if (key === 'ComboFinishParryWindow') console.log(statusObject)
-								return getStatusDetails(status.RowName, statusObject);
+								return `${status.RowName}: ${translateDetails(getStatusDetails(status.RowName, statusObject))}`;
 							} else {
 
 								if (Object.hasOwn(status, 'DataTable')) {
 									const statusObject = ue.getDataTableItem(status);
-									return text.getStringFromTable(allTables, statusObject.DisplayData?.Name);
+									return text.getStringFromTable(statusObject.DisplayData?.Name);
 								} else if (Object.hasOwn(status, 'HazardClass')) {
 									const [hazardPath, hazardKey] = status.HazardClass.AssetPathName.split('.');
 									const hazardArray = JSON.parse(fs.readFileSync(`data${hazardPath}.json`, 'utf-8'));
@@ -202,7 +301,7 @@ const getStatusDetails = (key, statusObject) => {
 					damageTypeObject.ClassDefaultObject.ObjectPath) {
 					const damageTypeClassDefaultObject = ue.parsePathData(damageTypeObject.ClassDefaultObject.ObjectPath);
 					if (damageTypeClassDefaultObject) {
-						damageLoop.damageType = text.getStringFromTable(allTables, damageTypeClassDefaultObject.Properties?.LocalizedDisplayName);
+						damageLoop.damageType = text.getStringFromTable(damageTypeClassDefaultObject.Properties?.LocalizedDisplayName);
 					}
 				}
 			}
@@ -260,7 +359,7 @@ Object.values(allItems).forEach(item => {
 		'EItemType::PersonalKeyItem',
 	].includes(item.ItemType)) return;
 
-	const itemName = text.getStringFromTable(allTables, item.LocalizedDisplayName);
+	const itemName = text.getStringFromTable(item.LocalizedDisplayName);
 	if (!itemName) return;
 
 	const hasEquipableData = Object.hasOwn(item, 'EquippableData');
@@ -512,7 +611,7 @@ const allMutations = ue.parsePathData('/Game/Design/Perks/Table_Perks.0')?.Rows 
 Object.values(allMutations).forEach(mutation => {
 	if (!hasEffectArray(mutation, 'Tiers')) return;
 
-	const mutationName = text.getStringFromTable(allTables, mutation.LocalizedDisplayName);
+	const mutationName = text.getStringFromTable(mutation.LocalizedDisplayName);
 	if (!mutationName) return;
 
 	mutation.Tiers.flatMap(tier => tier.Reward).forEach(tier => {

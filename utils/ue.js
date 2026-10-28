@@ -2,6 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import constants from './constants.js';
 
+let dataTableCache = {};
+
 /**
  * Merges source properties into a deep copy of a target object.
  * @param {object} target - Object to copy and merge into.
@@ -49,10 +51,16 @@ const getDamageTypes = (value) => {
  * @param {{DataTable: {ObjectPath?: string}, RowName?: string}} reference - Data table and row reference.
  * @returns {object} The matching row, or an empty object if its object path or row name is missing.
  */
-const getDataTableItem = ({ DataTable: { ObjectPath = '' }, RowName = '' }) => {
+const getDataTableItem = ({ DataTable: { ObjectName = '', ObjectPath = '' }, RowName = '' }) => {
 	if (!ObjectPath || !RowName) return {};
 
-	const dataTable = parsePathData(ObjectPath);
+	let dataTable = {};
+	if (!Object.hasOwn(dataTableCache, ObjectName) || !dataTableCache[ObjectName]) {
+		dataTableCache[ObjectName] = parsePathData(ObjectPath);
+	}
+
+	dataTable = dataTableCache[ObjectName];
+
 	const validKey = Object.keys(dataTable?.Rows).find(row =>
 		row.localeCompare(RowName, undefined, { sensitivity: 'base' }) === 0);
 
@@ -73,6 +81,7 @@ const isObject = (item) => item && typeof item === 'object' && !Array.isArray(it
  */
 const parsePathData = (stringPath) => {
 	// console.log('parsePathData', { stringPath });
+	// TODO: add to cache?
 
 	if (!stringPath) return {};
 

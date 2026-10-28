@@ -4,8 +4,6 @@ import text from '../utils/text.js';
 import ue from '../utils/ue.js';
 import wiki from '../utils/wiki.js';
 
-const allTables = text.getAllTables();
-
 const rangerQuests = ue.parsePathData('/Game/Blueprints/BurgleQuests/ASLQuestCollection.0')?.Properties?.Collection || [];
 
 let i = 1;
@@ -21,11 +19,11 @@ const questRows = rangerQuests.map(({ ObjectPath }) => {
 	// TODO: is this the right order?
 	const combinedProps = ue.deepMerge(templateProps, questProps);
 
-	const title = text.getStringFromTable(allTables, combinedProps.TitleString);
-	const descriptionFormat = text.getStringFromTable(allTables, combinedProps.ObjectiveFormatString);
+	const title = text.getStringFromTable(combinedProps.TitleString);
+	const descriptionFormat = text.getStringFromTable(combinedProps.ObjectiveFormatString);
 
 
-	let itemName = text.getStringFromTable(allTables,
+	let itemName = text.getStringFromTable(
 		combinedProps.CreatureDisplayName ||
 		combinedProps.ObjectiveCombo ||
 		combinedProps.ObjectiveDisplay ||// required by 11 (perfect block) but not by 24 (weakpoint)???
@@ -53,7 +51,7 @@ const questRows = rangerQuests.map(({ ObjectPath }) => {
 				const allItems = ue.parsePathData(logicalItemFound.DataTable?.ObjectPath);
 				if (allItems) {
 					const currentItem = allItems.Rows[logicalItemFound.RowName];
-					itemName = text.getStringFromTable(allTables, currentItem.LocalizedDisplayName)
+					itemName = text.getStringFromTable(currentItem.LocalizedDisplayName)
 				}
 			}
 		}
