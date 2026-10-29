@@ -26,6 +26,18 @@ let statusGroups = {
 	},
 };
 
+const fixDescription = (description = '') => {
+	let replaced = description;
+
+	try {
+		replaced = description.replaceAll(/<[^>]*>/g, '')
+	} catch (error) {
+		console.error(error);
+	}
+
+	return replaced;
+}
+
 const listReadable = (list) => {
 	switch (list.length) {
 		case 1:
@@ -267,7 +279,7 @@ const getStatusDetails = (key, statusObject) => {
 								const statusObject = ue.getDataTableItem(status);
 								const statusName = text.getStringFromTable(statusObject.DisplayData?.Name);
 								// if (key === 'ComboFinishParryWindow') console.log(statusObject)
-								return `${status.RowName}: ${translateDetails(getStatusDetails(status.RowName, statusObject))}`;
+								return `${status.RowName}: ${getStatusDetails(status.RowName, statusObject).name}`;
 							} else {
 
 								if (Object.hasOwn(status, 'DataTable')) {
@@ -691,11 +703,12 @@ const tableHeader = wiki.tableHeader([
 
 const recurseStatusGroups = (statusGroup, tier = 1) => {
 	for (let [key, value] of Object.entries(statusGroup)) {
+		console.log(wiki.title(key, tier));
 
 		if (Array.isArray(value)) {
 			const statusRows = value.sort(sortEffects).map(effect => {
 				// TODO: testing
-				if (effect.Type !== 'EStatusEffectType::TriggerExtraAttack') return null;
+				// if (effect.Type !== 'EStatusEffectType::TriggerExtraAttack') return null;
 
 				return wiki.tableRow([
 					`<span id="${effect.key}">[[File:${effect.name}.png|50px]]</span><br>${effect.name}`,
@@ -703,14 +716,15 @@ const recurseStatusGroups = (statusGroup, tier = 1) => {
 						attrs: {
 							style: 'text-align: left;',
 						},
-						content: translateDetails(effect),
-						// content: 'DETAILS GO HERE',
+						// content: translateDetails(effect),
+						// content: '-',
+						content: wiki.list(effect?.DamageData?.StatusEffects || []),
 					},
 					{
 						attrs: {
 							style: 'text-align: left;',
 						},
-						content: effect.description,
+						content: fixDescription(effect.description || ''),
 					},
 					{
 						attrs: {
@@ -723,7 +737,7 @@ const recurseStatusGroups = (statusGroup, tier = 1) => {
 
 			const statusTable = wiki.table([tableHeader, ...statusRows], true, true, false);
 
-			// console.log(statusTable);
+			console.log(statusTable);
 
 		} else {
 			recurseStatusGroups(value, tier + 1);
@@ -734,8 +748,3 @@ const recurseStatusGroups = (statusGroup, tier = 1) => {
 recurseStatusGroups(statusGroups);
 
 wiki.timestamp();
-
-process.exit(0);
-
-console.log(wiki.code(statusGroups));
-
