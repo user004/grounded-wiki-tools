@@ -61,7 +61,7 @@ const questRows = rangerQuests.map(({ ObjectPath }) => {
 	let replaced = text.replaceFormat(descriptionFormat, itemName || qty);
 
 	// TODO: figure this shit out
-	if (title === 'Perfect Timing' || title === 'Achilles\' Heel' || title === 'Neato Torpedo' || title === 'Tiers for Gears') {
+	if (title === 'Perfect Timing' || title === `Achilles' Heel` || title === 'Neato Torpedo' || title === 'Tiers for Gears') {
 		console.log({ title, descriptionFormat, itemName, qty, replaced });
 	}
 	// TODO: change to > 1?

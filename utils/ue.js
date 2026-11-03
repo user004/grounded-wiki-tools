@@ -46,6 +46,16 @@ const getDamageTypes = (value) => {
 	return names;
 };
 
+const getPlacementTypes = (value) => {
+	let names = [];
+
+	for (let [bit, name] of Object.entries(constants.getConstant('placementTypeFlags'))) {
+		if (value & bit) names.push(name);
+	}
+
+	return names;
+};
+
 /**
  * Gets a row from a referenced Unreal Engine data table.
  * @param {{DataTable: {ObjectPath?: string}, RowName?: string}} reference - Data table and row reference.
@@ -103,4 +113,10 @@ const parsePathData = (stringPath) => {
 	return jsonData[dataIndex] || {};
 };
 
-export default { deepMerge, getDamageTypes, getDataTableItem, parsePathData };
+export default {
+	deepMerge,
+	getDamageTypes,
+	getDataTableItem,
+	getPlacementTypes,
+	parsePathData,
+};

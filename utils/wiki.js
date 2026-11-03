@@ -95,6 +95,15 @@ const table = (rows, sortable = false, collapsible = false, collapsed = false) =
 	if (collapsible) classes.push('mw-collapsible');
 	if (collapsed) classes.push('mw-collapsed');
 
+	const defaultAttributes = {
+		width: '100%',
+	};
+
+	const defaultStyles = {
+		textAlign: 'center',
+		fontSize: '15px',
+	};
+
 	// TODO: make it so I can set default style (text-align: center|left)
 	return `{| class="${classes.join(' ')}" width="100%" style="text-align: center; font-size: 15px;"\n${rows.join('\n')}\n|}`;
 };

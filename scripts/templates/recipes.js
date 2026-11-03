@@ -11,6 +11,33 @@ example output:
 
 let recpies = [];
 
+const getBuildingName = (buildingTag = '') => {
+	if (!buildingTag) return '';
+
+	// name isn't in GlobalUIData_Augusta
+	switch (buildingTag) {
+		case 'CraftingBuilding.BuggyBuffing':
+			return `Buffin' Barrel`;
+
+		case 'CraftingBuilding.Glue':
+			return 'Glue Masher';
+
+		case 'CraftingBuilding.Hatchery':
+			return 'Hatchery';
+
+		case 'CraftingBuilding.SausageMachine':
+			return 'Sausager';
+
+		case 'Recipe.Crafting.Survival.Light':// ???
+		case 'CraftingBuilding.Workbench.CraftableInPlayerMenu':
+			return 'Crafted by Hand';
+
+		default:
+			const buildingObject = globalData.find(data => data?.Key?.TagName === buildingTag);
+			return text.getStringFromTable(buildingObject?.Value?.CraftingBuildingName) || '';
+	}
+};
+
 // TODO: util?
 const globalData = ue.parsePathData('/Game/_Augusta/Global/Data/GlobalUIData_Augusta.0')?.Properties?.CraftingBuildingIcons || [];
 
@@ -28,12 +55,11 @@ const recipes = [
 	// CraftedItem - the item
 	const craftedObject = ue.getDataTableItem(recipeObject.CraftedItem || recipeObject.Building);
 	let craftedName = text.getStringFromTable(craftedObject.LocalizedDisplayName);
+	const rowName = recipeObject?.CraftedItem?.RowName || '';
 
 	// CraftingBuildingTag - station
 	const buildingTag = recipeObject?.CraftingBuildingTag?.TagName || '';
-	// TODO: convert this
-	const buildingObject = globalData.find(data => data?.Key?.TagName === buildingTag);
-	let buildingName = text.getStringFromTable(buildingObject?.Value?.CraftingBuildingName) || '';
+	let buildingName = getBuildingName(buildingTag);
 
 	// Requirements - mats
 	const craftedMaterials = recipeObject.Requirements.map(requirement => {
@@ -49,19 +75,15 @@ const recipes = [
 	const craftedQuantity = recipeObject.CraftedItemCount || 0;
 
 	// manual override for shorter wall mount names
-	const category = recipeObject.CategoryTag.TagName || '';
-	if (category === 'Recipe.Building.BugTrophy.Trophy.Mounted' ||
-		category === 'Recipe.Building.Decoration.Decor.Art') {
+	const categoryTag = recipeObject.CategoryTag.TagName || '';
+	if (categoryTag === 'Recipe.Building.BugTrophy.Trophy.Mounted' ||
+		categoryTag === 'Recipe.Building.Decoration.Decor.Art') {
 		craftedName = craftedName.replace('Wall Mount', 'Mount');
 	}
 
-	// manual override for buffin' barrel
+	// manual override for buffin' barrel item names
 	if (buildingTag === 'CraftingBuilding.BuggyBuffing') {
-		// name isn't in GlobalUIData_Augusta
-		buildingName = 'Buffin\' Barrel';
-
 		// wiki-appropriate recipe names
-		const rowName = recipeObject?.CraftedItem?.RowName || '';
 		const rowNumber = +rowName.at(-1);
 
 		// buggy evolutions - in release order (and tier... coincidentally)
@@ -92,26 +114,92 @@ const recipes = [
 			},
 		}
 
+		/* overrides for non-matching
+			|Station=Buffin' Barrel
+				By Hand
+				Crafted by Hand
+				Crafted in World
+				Crafted in World Underwater
+				EverChar Roasting Spit
+				Glitter Bar
+				Glue Masher
+				Hatchery
+		*/
+
 		// TODO: template switch name and display name are not the same?
 		// | Orb Weaver Buggy T3 = {{Recipe:Item/G2 | Item=Orb Weaver Buggy Tier 3 | ... }}
 		const buggyInfo = buggyTierInfo[rowName.slice(0, -1)];
 		craftedName = `${buggyInfo.name} T${rowNumber + buggyInfo.tier}`;
 	}
 
-	let recipeTemplate = recipe.item(craftedName, craftedMaterials, buildingName, craftedQuantity);
+	// TODO: do these
 
+	if (categoryTag === 'None') {
+		// omnitools
+		if (rowName.startsWith('Omnitool_')) {
+			buildingName = 'Glitter Bar';
+			craftedName = `Omni-Tool ${rowName.split('_').pop()}`;
+		}
+
+		// scabs
+		if (rowName.startsWith('SCAB_')) {
+			buildingName = 'Glitter Bar';
+			craftedName = `SCA.B 2K ${rowName.split('_').pop()}`;
+		}
+
+		// ziplines?
+		if (craftedName === 'Zipline') {
+			buildingName = 'Crafted in World';
+		}
+	}
+
+	// land, aquatic, amphibious
+	const buildingPlacementType = craftedObject?.PlacementType || 0;
+	if (categoryTag.startsWith('Recipe.Building.')) {
+		// default
+		buildingName = 'Crafted in World';
+
+		switch (buildingPlacementType) {
+			case 2:
+			case 4:
+			case 6:
+				buildingName += ' (Aquatic)';
+				break;
+
+			case 5:
+			case 7:
+				buildingName += ' (Amphibious)';
+				break;
+
+			case 1:
+			case 3:
+			default:
+				// intentionally left blank
+				break;
+		}
+	}
+
+	// TODO: something to make multi recipe items with different names
+	// TODO: things without station???
+
+	let recipeTemplate = recipe.item(craftedName, craftedMaterials, buildingName, craftedQuantity);
+	// smoothies get different template
 	if (buildingTag === 'CraftingBuilding.Mixer') {
 		recipeTemplate = recipe.smoothie(craftedName, craftedMaterials);
+	}
+
+	if (!buildingName) {
+		// console.log(rowName, craftedName);
 	}
 
 	return `|${craftedName}=${recipeTemplate}`;
 })
 	.filter(recipe => recipe)
-	.sort()
+	.sort()/*
 	.reduce((acc, current) => {
 		if (!acc.includes(current)) acc.push(current);
 		return acc;
-	}, []);
+	}, []) */;
 
 console.log(`{{#switch:{{{1|{{PAGENAME}}}}}\n${recipes.join('\n')}\n}}<noinclude>{{Documentation}}</noinclude>`);
 

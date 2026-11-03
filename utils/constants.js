@@ -23,6 +23,7 @@ const CONSTANTS = {
 		2: 'game/items',
 		9: 'game/characters',
 		22: 'game/buildings',
+		29: 'game/techtree',// AKA optical disks
 		33: 'game/statuseffects',
 		56: 'game/pointsofinterest',
 		193: 'game/burglequests',// AKA ranger challenges
@@ -40,7 +41,6 @@ const CONSTANTS = {
 		game/news
 		game/props
 		game/quests
-		game/techtree
 		game/tutorial
 		*/
 	},
@@ -73,6 +73,17 @@ const CONSTANTS = {
 		524288: '',
 		4194304: '',
 		*/
+	},
+
+	// TODO: dunno if this is actually bitwise or just flags
+	placementTypeFlags: {
+		1: 'Land',
+		2: 'Water-Level',// buoyant foundations, water-level?
+		// 3: 2+1 land and water-level? trail marker only item
+		4: 'Underwater',
+		// 5: 4+1 underwater and land?
+		// 6: 4+2 underwater and water-level? buotant trail marker only item
+		// 7: land, water-level, and underwatcher
 	},
 
 };
