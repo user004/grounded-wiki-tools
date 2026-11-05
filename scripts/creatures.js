@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import ue from '../utils/ue.js';
 import text from '../utils/text.js';
 import wiki from '../utils/wiki.js';
+import utils from '../utils/utils.js';
 
 const creatures = ue.parsePathData('/Game/Blueprints/DataTables/Table_Bestiary.0').Rows || [];
 
@@ -72,7 +73,7 @@ for (let [key, creature] of Object.entries(creatures)) {
 
 			const templateObject = ue.parsePathData(creatureObject.Template.ObjectPath);
 
-			const combinedProps = ue.deepMerge(templateObject.Properties, creatureObject.Properties);
+			const combinedProps = utils.deepMerge(templateObject.Properties, creatureObject.Properties);
 
 			itemName = text.getStringFromTable(combinedProps.CharacterName);
 		}
@@ -98,7 +99,7 @@ for (let [key, creature] of Object.entries(creatures)) {
 
 			const templateObject = ue.parsePathData(creatureObject.Template.ObjectPath);
 
-			const combinedProps = ue.deepMerge(templateObject.Properties, creatureObject.Properties);
+			const combinedProps = utils.deepMerge(templateObject.Properties, creatureObject.Properties);
 
 			itemName = text.getStringFromTable(combinedProps.CharacterName);
 		}

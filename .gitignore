@@ -1,5 +1,8 @@
 # project specific
-data/Game
+data/*
+!data/.gitkeep
+output/*
+!output/.gitkeep
 
 # Logs
 logs

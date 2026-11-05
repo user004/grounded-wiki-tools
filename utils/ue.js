@@ -1,39 +1,30 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import constants from './constants.js';
+import sharp from 'sharp';
 
 let dataTableCache = {};
 
-/**
- * Merges source properties into a deep copy of a target object.
- * @param {object} target - Object to copy and merge into.
- * @param {object} source - Object whose properties take precedence.
- * @returns {object} The merged object.
- */
-const deepMerge = (target, source) => {
-	// Create a deep copy of the target to prevent original mutation
-	let output = structuredClone(target);
+// TODO: clean this up
+const extractIcon = (iconPath = '', iconName = '') => {
+	const [splitPath = ''] = iconPath.split('.');
+	const fromPath = path.format({
+		root: constants.getConstant('appData'),
+		name: splitPath,
+		ext: 'png',
+	});
+	console.log(fromPath);
+	const toPath = path.format({
+		root: constants.getConstant('appOutput'),
+		name: iconName,
+		ext: 'png',
+	});
+	console.log(toPath);
+	fs.copyFileSync(fromPath, toPath);
 
-	if (isObject(target) && isObject(source)) {
-		for (const key in source) {
-			if (Object.prototype.hasOwnProperty.call(source, key)) {
-				if (isObject(source[key])) {
-					if (!(key in target)) {
-						// If key doesn't exist in target, copy it completely
-						output[key] = structuredClone(source[key]);
-					} else {
-						// If key exists in both, recursively merge them
-						output[key] = deepMerge(target[key], source[key]);
-					}
-				} else {
-					// If the source property is a primitive value, overwrite the target value
-					output[key] = source[key];
-				}
-			}
-		}
-	}
-
-	return output;
+	sharp(fromPath)
+		.resize(128, 128, 'inside')
+		.toFile(toPath);
 };
 
 const getDamageTypes = (value) => {
@@ -78,13 +69,6 @@ const getDataTableItem = ({ DataTable: { ObjectName = '', ObjectPath = '' }, Row
 };
 
 /**
- * Checks whether a value is a non-array object.
- * @param {*} item - Value to check.
- * @returns {*} A falsy value, or whether the value is a non-array object.
- */
-const isObject = (item) => item && typeof item === 'object' && !Array.isArray(item);
-
-/**
  * Parses data from a UE path string.
  * @param {string} stringPath - The path, including the "dot index" suffix.
  * @returns {object|false} The parsed JSON data, or false if it cannot be read.
@@ -97,6 +81,7 @@ const parsePathData = (stringPath) => {
 
 	const [dataPath = '', dataIndex = '0'] = stringPath.split('.');
 	const absolutePath = path.format({
+		// TODO: replace with constant?
 		root: 'data',
 		name: dataPath,
 		ext: 'json',
@@ -114,7 +99,7 @@ const parsePathData = (stringPath) => {
 };
 
 export default {
-	deepMerge,
+	extractIcon,
 	getDamageTypes,
 	getDataTableItem,
 	getPlacementTypes,

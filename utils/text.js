@@ -1,7 +1,6 @@
-import constants from './constants.js';
 import fs from 'node:fs';
-import path from 'node:path';
-import ue from './ue.js';
+
+import constants from './constants.js';
 import wiki from './wiki.js';
 
 let stringTableCache = [];
@@ -77,7 +76,6 @@ const getStringFromTable = ({ StringTableID = 0, StringID = 0 } = {}) => {
 	if (!foundStringObject) return false;
 	return foundStringObject.Value.DefaultText || '';
 };
-
 
 /**
  * Replaces UE formatting placeholders with text, wrapping named placeholders in a wiki link.

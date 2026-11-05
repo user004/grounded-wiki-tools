@@ -1,3 +1,5 @@
+import utils from './utils.js';
+
 const start = performance.now();
 
 /**
@@ -7,7 +9,9 @@ const start = performance.now();
  */
 const bold = (text) => `'''${text}'''`;
 
-const code = (code) => `<pre>${code}</pre>`;
+const code = (code) =>
+	['<pre>', code, '</pre>']
+		.join(comment.match(/\n/gi) ? `\n` : '');
 
 const comment = (comment) =>
 	['<!--', comment, '-->']
@@ -89,23 +93,33 @@ const rawScience = (value) => `{{${['Icon/Raw Science', ...`${value}`.split('')]
  * @param {boolean} [collapsed=false] - Whether the collapsible table starts collapsed.
  * @returns {string} Formatted wiki table.
  */
-const table = (rows, sortable = false, collapsible = false, collapsed = false) => {
+const table = (rows, options = {
+	sortable: false,
+	collapsible: false,
+	collapsed: false,
+	styles: {},
+	attributes: {}
+}) => {
 	let classes = ['wikitable'];
-	if (sortable) classes.push('sortable');
-	if (collapsible) classes.push('mw-collapsible');
-	if (collapsed) classes.push('mw-collapsed');
 
-	const defaultAttributes = {
-		width: '100%',
-	};
+	if (options.sortable) classes.push('sortable');
+	if (options.collapsible) classes.push('mw-collapsible');
+	if (options.collapsed) classes.push('mw-collapsed');
 
 	const defaultStyles = {
-		textAlign: 'center',
 		fontSize: '15px',
+		minWidth: '50%',
+		width: '100%',
 	};
+	const mergedStyles = utils.deepMerge(defaultStyles, options.styles);
 
-	// TODO: make it so I can set default style (text-align: center|left)
-	return `{| class="${classes.join(' ')}" width="100%" style="text-align: center; font-size: 15px;"\n${rows.join('\n')}\n|}`;
+	const defaultAttributes = {
+		class: classes.join(' '),
+		style: utils.stringifyObject(mergedStyles, 'style'),
+	};
+	const mergedAttributes = utils.deepMerge(defaultAttributes, options.attributes);
+
+	return `{| ${utils.stringifyObject(mergedAttributes)}\n\n${rows.join('\n\n')}\n\n|}`;
 };
 
 /**

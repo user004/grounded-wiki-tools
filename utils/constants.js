@@ -1,4 +1,8 @@
 const CONSTANTS = {
+	appData: 'data',
+	// TODO: something about this slash, always resolve or...?
+	appOutput: 'output/',
+
 	// class statuses
 	classStatuses: {
 		'Fighter Armor': 'FighterFinisherStun',

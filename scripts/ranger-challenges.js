@@ -3,6 +3,7 @@
 import text from '../utils/text.js';
 import ue from '../utils/ue.js';
 import wiki from '../utils/wiki.js';
+import utils from '../utils/utils.js';
 
 const rangerQuests = ue.parsePathData('/Game/Blueprints/BurgleQuests/ASLQuestCollection.0')?.Properties?.Collection || [];
 
@@ -17,7 +18,7 @@ const questRows = rangerQuests.map(({ ObjectPath }) => {
 	const questProps = questClass?.Properties || {};
 
 	// TODO: is this the right order?
-	const combinedProps = ue.deepMerge(templateProps, questProps);
+	const combinedProps = utils.deepMerge(templateProps, questProps);
 
 	const title = text.getStringFromTable(combinedProps.TitleString);
 	const descriptionFormat = text.getStringFromTable(combinedProps.ObjectiveFormatString);
