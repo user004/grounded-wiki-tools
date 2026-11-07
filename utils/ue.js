@@ -6,25 +6,44 @@ import sharp from 'sharp';
 let dataTableCache = {};
 
 // TODO: clean this up
-const extractIcon = (iconPath = '', iconName = '') => {
+// https://sharp.pixelplumbing.com/api-composite/
+const extractIcon = (iconPath = '', iconName = '', layerPath = '') => {
 	const [splitPath = ''] = iconPath.split('.');
 	const fromPath = path.format({
 		root: constants.getConstant('appData'),
 		name: splitPath,
 		ext: 'png',
 	});
-	console.log(fromPath);
+
 	const toPath = path.format({
 		root: constants.getConstant('appOutput'),
-		name: iconName,
+		name: iconName.replaceAll(/\//g, '-'),
 		ext: 'png',
 	});
-	console.log(toPath);
-	fs.copyFileSync(fromPath, toPath);
 
-	sharp(fromPath)
-		.resize(128, 128, 'inside')
-		.toFile(toPath);
+	if (!fs.existsSync(fromPath)) {
+		console.log(`Does not exist: ${fromPath}`)
+		return;
+	}
+
+	if (layerPath) {
+		const [splitPath = ''] = layerPath.split('.');
+		const layerPathFormat = path.format({
+			root: constants.getConstant('appData'),
+			name: splitPath,
+			ext: 'png',
+		});
+		console.log(layerPath, layerPathFormat);
+		sharp(fromPath)
+			.resize(128)
+			.composite([{ input: layerPathFormat, top: 0, left: 0 }])
+			.toFile(toPath);
+
+	} else {
+		sharp(fromPath)
+			.resize(128, 128, 'inside')
+			.toFile(toPath);
+	}
 };
 
 const getDamageTypes = (value) => {
