@@ -7,23 +7,18 @@ let i = 0;
 
 const tableHeader = wiki.tableHeader([
 	{
-		attrs: {
-			style: 'width: 20%',
+		styles: {
+			width: '20%',
 		},
 		content: 'Upgrade',
 	},
 	{
-		attrs: {
-			style: 'width: 15%',
+		styles: {
+			width: '15%',
 		},
 		content: 'Cost',
 	},
-	{
-		attrs: {
-			style: '',
-		},
-		content: 'Unlocks',
-	},
+	'Unlocks',
 ]);
 
 Object.values(trees).forEach(tree => {
@@ -75,16 +70,19 @@ Object.values(trees).forEach(tree => {
 		// });
 
 		return wiki.tableRow([
+			groupName,
 			{
-				attrs: {
-					style: 'text-align: left;',
+				styles: {
+					textAlign: 'center',
 				},
-				content: groupName,
+				content: wiki.rawScience(groupCost),
 			},
-			wiki.rawScience(groupCost),
 			{
-				attrs: {
-					style: `text-align: ${Array.isArray(unlockList[0]) ? 'center' : 'left'}; text-wrap: balance;`,
+				styles: {
+					textAlign: Array.isArray(unlockList[0])
+						? 'center'
+						: '',
+					textWrap: 'balance',
 				},
 				content: Array.isArray(unlockList[0])
 					? `\n${unlockList.flatMap(list => [...list]).map(item => `[[File:${item}.png|70px]]`).join(`\n`)}\n`
@@ -93,7 +91,9 @@ Object.values(trees).forEach(tree => {
 		]);
 	});
 
-	console.log(wiki.table([tableHeader, ...rows], false, false, false));
+	console.log(wiki.table([tableHeader, ...rows], {
+		styles: { width: '' }
+	}));
 });
 
 wiki.timestamp();

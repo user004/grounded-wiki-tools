@@ -127,9 +127,11 @@ const tables = Object.keys(categorizedCards).map(category => {
 	const colspan = 4;
 	const tableHeader = wiki.tableHeader([
 		{
-			attrs: {
+			styles: {
+				width: '20%',
+			},
+			attributes: {
 				colspan,
-				style: 'width: 20%;',
 			},
 			content: `${category} Creature Cards`,
 		}
@@ -143,7 +145,13 @@ const tables = Object.keys(categorizedCards).map(category => {
 	const rows = rowData.map((row) => wiki.tableRow(row.map(({ tier, title }) =>
 		`${!isGoldOnly(title) ? `[[File:creaturecard ${fixG2Images(fixBoth(fixImage(title)))}.png|50px]] ` : ''}[[File:creaturecardgold ${fixBoth(fixImage(title))}.png|50px]]<br>[[${fixBoth(title)}]]<br>[[File:CreatureTier${fixTier(tier)}.png|30px]]`)));
 
-	return wiki.table([tableHeader, ...rows], false, true, false);
+	return wiki.table([tableHeader, ...rows], {
+		styles: {
+			textAlign: 'center',
+		},
+		sortable: false,
+		collapsible: true,
+	});
 });
 
 console.log(tables.join('\n\n'));

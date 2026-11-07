@@ -37,7 +37,7 @@ Object.keys(buildings).forEach(key => {
 	const desc = removeHtml(text.getStringFromTable(building.LocalizedDescription));
 
 	// if (!name.toLocaleLowerCase().includes('centipede')) return;
-	if (!keys.includes(key)) return;
+	// if (!keys.includes(key)) return;
 
 	// placement data - PlacementData.Actor.AssetPathName
 	const [bpPath] = building.PlacementData.Actor.AssetPathName.split('.');
@@ -115,27 +115,27 @@ Object.keys(buildings).forEach(key => {
 // table
 const tableHeaderTop = wiki.tableHeader([
 	{
-		attrs: {
+		attributes: {
 			rowspan: 2,
 		},
 		content: 'Building',
 	},
 	{
-		attrs: {
+		attributes: {
 			colspan: 3,
 			class: 'unsortable',
 		},
 		content: 'Stats',
 	},
 	{
-		attrs: {
+		attributes: {
 			rowspan: 2,
 			class: 'unsortable',
 		},
 		content: 'Description',
 	},
 	{
-		attrs: {
+		attributes: {
 			rowspan: 2,
 			class: 'unsortable',
 		},
@@ -145,19 +145,19 @@ const tableHeaderTop = wiki.tableHeader([
 
 const tableHeaderBottom = wiki.tableHeader([
 	{
-		attrs: {
+		attributes: {
 			class: 'unsortable',
 		},
 		content: 'Health',
 	},
 	{
-		attrs: {
+		attributes: {
 			class: 'unsortable',
 		},
 		content: 'Coziness',
 	},
 	{
-		attrs: {
+		attributes: {
 			class: 'unsortable',
 		},
 		content: 'Duplicate Coziness',
@@ -171,10 +171,10 @@ Object.keys(groups).forEach(key => {
 	console.log(wiki.title(catName, 3));
 
 	const table = wiki.table([tableHeaderTop, tableHeaderBottom, ...groups[key]], {
-		sortable: true,
 		styles: {
 			textAlign: 'center',
-		}
+		},
+		sortable: true,
 	});
 
 	console.log(table);

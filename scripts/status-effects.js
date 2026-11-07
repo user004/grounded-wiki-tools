@@ -672,32 +672,37 @@ const sortEffects = (a, b) => {
 
 const tableHeader = wiki.tableHeader([
 	{
-		attrs: {
-			class: 'unsortable',
+		styles: {
 			width: '10%',
+		},
+		attributes: {
+			class: 'unsortable',
 		},
 		content: 'Effect',
 	},
 	{
-		attrs: {
-			class: 'unsortable',
+		styles: {
 			width: '35%',
+		},
+		attributes: {
+			class: 'unsortable',
 		},
 		content: 'Details',
 	},
 	{
-		attrs: {
-			class: 'unsortable',
+		styles: {
 			width: '35%',
+		},
+		attributes: {
+			class: 'unsortable',
 		},
 		content: 'In-Game Description',
 	},
 	{
-		attrs: {
-			style: '',
+		styles: {
 			width: '20%',
 		},
-		content: 'In-Game Description',
+		content: 'Source',
 	}
 ]);
 
@@ -711,31 +716,24 @@ const recurseStatusGroups = (statusGroup, tier = 1) => {
 				// if (effect.Type !== 'EStatusEffectType::TriggerExtraAttack') return null;
 
 				return wiki.tableRow([
-					`<span id="${effect.key}">[[File:${effect.name}.png|50px]]</span><br>${effect.name}`,
 					{
-						attrs: {
-							style: 'text-align: left;',
+						styles: {
+							textAlign: 'center',
 						},
-						// content: translateDetails(effect),
-						// content: '-',
-						content: wiki.list(effect?.DamageData?.StatusEffects || []),
+						content: `<span id="${effect.key}">[[File:${effect.name}.png|50px]]</span><br>${effect.name}`,
 					},
-					{
-						attrs: {
-							style: 'text-align: left;',
-						},
-						content: fixDescription(effect.description || ''),
-					},
-					{
-						attrs: {
-							style: 'text-align: left;',
-						},
-						content: wiki.list(effect.source.sort().map(item => wiki.link(item))),
-					},
+					// translateDetails(effect),
+					// '-',
+					wiki.list(effect?.DamageData?.StatusEffects || []),
+					fixDescription(effect.description || ''),
+					wiki.list(effect.source.sort().map(item => wiki.link(item))),
 				]);
 			}).filter(item => item !== null);
 
-			const statusTable = wiki.table([tableHeader, ...statusRows], true, true, false);
+			const statusTable = wiki.table([tableHeader, ...statusRows], {
+				sortable: true,
+				collapsible: true,
+			});
 
 			console.log(statusTable);
 

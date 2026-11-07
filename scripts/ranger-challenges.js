@@ -85,16 +85,26 @@ const questRows = rangerQuests.map(({ ObjectPath }) => {
 
 const headerRows = [
 	wiki.tableHeader([
-		{ attrs: { colspan: 4 }, content: 'Ranger Challenges' },
+		{
+			attributes: {
+				colspan: 4,
+			},
+			content: 'Ranger Challenges',
+		},
 	]),
 	wiki.tableHeader([
-		{ attrs: {}, content: '#' },
-		{ attrs: {}, content: 'Quest' },
-		{ attrs: {}, content: 'Description' },
-		{ attrs: {}, content: 'Raw Science Reward' },
+		'#',
+		'Quest',
+		'Description',
+		'Raw Science Reward',
 	]),
 ];
 
-// console.log(wiki.table([...headerRows, ...questRows], false, true));
+console.log(wiki.table([...headerRows, ...questRows], {
+	styles: {
+		textAlign: 'center',
+	},
+	collapsible: true,
+}));
 
 wiki.timestamp();

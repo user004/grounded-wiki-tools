@@ -33,17 +33,37 @@ const levelRows = researchLevels.map(({ ResearchPointThreshold, UnlockRecipes, B
 	return wiki.tableRow([
 		level++,
 		ResearchPointThreshold,
-		{ attrs: { style: 'text-align: left;' }, content: wiki.list(unlocks) },
+		{
+			styles: {
+				textAlign: 'left',
+			},
+			content: wiki.list(unlocks),
+		},
 		wiki.rawScience(BonusScienceAtLevel),
 	]);
 });
 
 // header
 const headerRow = wiki.tableHeader([
-	{ attrs: {}, content: 'Level' },
-	{ attrs: { class: 'unsortable' }, content: 'Total BP' },
-	{ attrs: { class: 'unsortable' }, content: 'Unlocks' },
-	{ attrs: { class: 'unsortable' }, content: 'RS Reward' },
+	'Level',
+	{
+		attributes: {
+			class: 'unsortable',
+		},
+		content: 'Total BP',
+	},
+	{
+		attributes: {
+			class: 'unsortable',
+		},
+		content: 'Unlocks',
+	},
+	{
+		attributes: {
+			class: 'unsortable',
+		},
+		content: 'RS Reward',
+	},
 ]);
 
 // add a row for level 0
@@ -54,6 +74,13 @@ const zeroRow = wiki.tableRow([
 	'-',
 ]);
 
-console.log(wiki.table([headerRow, zeroRow, ...levelRows], true, true, true));
+console.log(wiki.table([headerRow, zeroRow, ...levelRows], {
+	styles: {
+		textAlign: 'center',
+	},
+	sortable: true,
+	collapsible: true,
+	collapsed: true,
+}));
 
 wiki.timestamp();

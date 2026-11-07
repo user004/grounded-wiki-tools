@@ -1,6 +1,7 @@
 import utils from './utils.js';
 
-const start = performance.now();
+// start performance counter
+performance.now();
 
 /**
  * Wraps text in the wiki's bold markup.
@@ -127,33 +128,48 @@ const table = (rows, options = {
  * @param {{attrs: Record<string, string>, content: string}[]} headers - Header cells and their attributes.
  * @returns {string} Formatted wiki table header row.
  */
-const tableHeader = (headers) =>
+const tableHeader = (headers = []) =>
 	tableRow(headers.map(header => {
-		// TODO: make it so I don't have to include the attrs on a string header
-		header.attrs.style = 'background-color: var(--wiki-accent-color); color: #ffffff;';
-		return header;
+		const defaultStyles = {
+			backgroundColor: 'var(--wiki-accent-color)',
+			color: '#fff',
+		};
+		const mergedStyles = utils.deepMerge(defaultStyles, header.styles || {});
+
+		// none currently, future-proofing
+		const defaultAttributes = {};
+		const mergedAttributes = utils.deepMerge(defaultAttributes, header.attributes || {});
+
+		return {
+			styles: mergedStyles,
+			attributes: mergedAttributes,
+			content: header.content || header || '',
+		};
 	}), true);
 
 /**
  * Formats columns as a wiki table row.
  * @param {(string|number|{attrs: Record<string, string>, content: string})[]} columns - Cell contents or cells with attributes.
- * @param {boolean} [header=false] - Whether to format the row as a header.
+ * @param {boolean} [isHeader=false] - Whether to format the row as a header.
  * @returns {string} Formatted wiki table row.
  */
-const tableRow = (columns, header = false) => {
-	const separator = header ? '!' : '|';
+const tableRow = (columns = [], isHeader = false) => {
+	const separator = isHeader ? '!' : '|';
 
 	const formattedColumns = columns.map(column => {
+		// string, straight to output
 		if (typeof column !== 'object') return column;
 
-		const { attrs, content } = column;
+		// expected options
+		const {
+			styles = {},
+			attributes = {},
+			content = '',
+		} = column;
 
-		let formattedAttrs = [];
-		for (const [key, value] of Object.entries(attrs)) {
-			formattedAttrs.push(`${key}="${value}"`);
-		}
+		if (styles) attributes.style = utils.stringifyObject(styles, 'style');
 
-		return `${formattedAttrs.join(' ')} | ${content}`;
+		return `${utils.stringifyObject(attributes)} | ${content}`;
 	});
 
 	return `|-\n${separator} ${formattedColumns.join(`\n${separator} `)}`;
@@ -162,11 +178,13 @@ const tableRow = (columns, header = false) => {
 const timestamp = () => {
 	const end = performance.now();
 
-	let duration = `${Number((end).toFixed(1))}ms`;
+	let duration = `${end.toFixed(0)}ms`;
+
 	if (end >= 60000) {
-		duration = `${Number((end / 10000).toFixed(1))}m`;
+		// would be wild to take this long...
+		duration = `${(end / 10000).toFixed(2)}m`;
 	} else if (end >= 1000) {
-		duration = `${Number((end / 1000).toFixed(1))}s`
+		duration = `${(end / 1000).toFixed(1)}s`
 	}
 
 	console.log(comment(`Generated on ${new Date().toISOString()} in ${duration}`));

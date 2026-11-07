@@ -77,21 +77,29 @@ const unlockables = Object.values(allItems)
 	})
 	.map(({ name, unlocks }) =>
 		wiki.tableRow([
-			wiki.icon(name, 50, 'bottom'),
 			{
-				attrs: {
-					style: "text-align: left;"
+				styles: {
+					textAlign: 'center',
 				},
-				content: wiki.list(unlocks)
-			}
+				content: wiki.icon(name, 50, 'bottom')
+			},
+			wiki.list(unlocks),
 		]));
 
 const header = wiki.tableHeader([
-	{ attrs: {}, content: 'Resource' },
-	{ attrs: { class: 'unsortable' }, content: 'Unlocked Recipe' }
+	'Resource',
+	{
+		attributes: {
+			class: 'unsortable',
+		},
+		content: 'Unlocked Recipe',
+	},
 ]);
 
-console.log(wiki.table([header, ...unlockables], true, true));
+console.log(wiki.table([header, ...unlockables], {
+	sortable: true,
+	collapsible: true,
+}));
 /*
 for (const [key, { LocalizedDisplayName, NewResearchUnlockRecipes }] of Object.entries(allItems)) {
 	if (NewResearchUnlockRecipes.length > 0) {

@@ -48,34 +48,31 @@ const cozyRows = cozyLevels.map(level => {
 	return wiki.tableRow([
 		`Level ${i}`,
 		level.RequiredValue || 0,
-		wiki.list(unlocks),
-		ongoingStatues.join('<br>'),
+		{
+			styles: {
+				textAlign: 'left',
+			},
+			content: wiki.list(unlocks),
+		},
+		ongoingStatues.join('<br><br>'),
 	]);
 });
 
 const cozyHeader = wiki.tableHeader([
+	'Level',
+	'Total Coziness',
 	{
-		attrs: {
-			style: '',
-		},
-		content: 'Level',
-	},
-	{
-		attrs: {
-			style: '',
-		},
-		content: 'Total Coziness',
-	},
-	{
-		attrs: {
+		attributes: {
 			class: 'unsortable',
 		},
 		content: 'Unlocks',
 	},
 	{
-		attrs: {
+		styles: {
+			width: '15%',
+		},
+		attributes: {
 			class: 'unsortable',
-			style: 'width: 15%',
 		},
 		content: 'Unlocks',
 	},

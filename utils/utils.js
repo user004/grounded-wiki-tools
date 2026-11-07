@@ -64,28 +64,5 @@ const stringifyObject = (input = {}, type = 'attribute') => {
 
 	return output.join(' ');
 }
-/*
-const defaultStyles = {
-	backgroundColor: '#000',
-	color: '#fff',
-	textWrap: 'balance',
-};
 
-const styles = deepMerge(defaultStyles, {
-	color: '#efefef',
-	textAlign: 'center',
-});
-
-const defaultAttributes = {
-	style: stringifyObject(styles, 'style'),
-	width: '50%',
-}
-
-const attributes = deepMerge(defaultAttributes, {
-	width: '100%',
-	dataAttributeThingOne: true,
-});
-
-console.log(stringifyObject(attributes));
-*/
 export default { deepMerge, stringifyObject };
