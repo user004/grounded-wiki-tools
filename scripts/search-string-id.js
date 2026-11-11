@@ -1,47 +1,52 @@
 import util from 'node:util';
 import constants from '../utils/constants.js';
 import text from '../utils/text.js';
+import wiki from '../utils/wiki.js';
 
 const tableKeys = constants.getConstant('tableIdToString');
 
 // get args
 const { values, positionals } = util.parseArgs({
 	options: {
-		includeConversations: {
+		inclusiveSearch: {
 			type: 'boolean',
 			short: 'i',
+			default: false,
+		},
+		includeConversations: {
+			type: 'boolean',
+			short: 'c',
 			default: false,
 		}
 	},
 	allowPositionals: true,
 });
 
-let allMatches = {};
-positionals.forEach(search => {
+const allMatches = {};
+if (positionals.length > 0) {
+	const searches = positionals.map(search => search.toLocaleLowerCase());
 	const allStringTables = text.getAllStringTables();
 
 	allStringTables.forEach(table => {
 		if (!values.includeConversations && !table.Key.startsWith('game/')) return;
-		// TODO: make matches inclusive?
-		const matches = table.Value.Entries.filter(({ Value: { DefaultText = '' } }) =>
-			DefaultText.toLocaleLowerCase().includes(search.toLocaleLowerCase()));
-		if (matches.length > 0) {
-			if (Array.isArray(allMatches[table.Key])) {
-				allMatches[table.Key].push(...matches);
-			} else {
-				allMatches[table.Key] = matches;
-			}
-		}
+
+		const matches = table.Value.Entries.filter(({ Value: { DefaultText = '' } }) => {
+			const text = DefaultText.toLocaleLowerCase();
+			return values.inclusiveSearch
+				? searches.every(search => text.includes(search))
+				: searches.some(search => text.includes(search));
+		});
+		if (matches.length > 0) allMatches[table.Key] = matches;
 	});
-});
+}
 
 const colors = [
-	'Yellow',
-	'Blue',
-	'Green',
-	'Cyan',
-	'Magenta',
-	'Red',
+	'bgYellow',
+	'bgBlue',
+	'bgGreen',
+	'bgRed',
+	'bgMagenta',
+	'bgCyan',
 ];
 
 function chunkText(text, maxLength) {
@@ -86,8 +91,10 @@ Object.keys(allMatches).forEach(tableKey => {
 		let colorI = 0;
 
 		positionals.forEach(search => {
-			result = result.replaceAll(new RegExp(search, 'gi'), util.styleText(['bold', `bg${colors[colorI]}`], '$&'));
+			result = result.replaceAll(new RegExp(search, 'gi'), util.styleText(['bold', colors[colorI]], '$&'));
+
 			colorI++;
+			if (colorI === colors.length) colorI = 0;
 		});
 
 		// console.log(chunkText(result, 40).join(`\n`));
@@ -97,3 +104,7 @@ Object.keys(allMatches).forEach(tableKey => {
 	});
 	console.groupEnd();
 });
+
+console.log(`\nTotal: ${Object.keys(allMatches).map(key => allMatches[key].length).reduce((acc, cur) => acc + cur, 0)}\n`);
+
+wiki.timestamp();
