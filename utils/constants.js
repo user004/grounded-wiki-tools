@@ -26,10 +26,12 @@ const CONSTANTS = {
 		1: 'game/gui',
 		2: 'game/items',
 		9: 'game/characters',
+		13: 'game/quests',
 		22: 'game/buildings',
 		29: 'game/techtree',// AKA optical disks
 		33: 'game/statuseffects',
 		56: 'game/pointsofinterest',
+		75: 'game/harvestnodes',
 		193: 'game/burglequests',// AKA ranger challenges
 		195: 'game/perks',// AKA mutations
 		// TODO: add more
@@ -40,11 +42,9 @@ const CONSTANTS = {
 		game/dataitems
 		game/deathmessages
 		game/gizmos
-		game/harvestnodes
 		game/inputbindings
 		game/news
 		game/props
-		game/quests
 		game/tutorial
 		*/
 	},

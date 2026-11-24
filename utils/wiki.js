@@ -175,6 +175,9 @@ const tableRow = (columns = [], isHeader = false) => {
 	return `|-\n${separator} ${formattedColumns.join(`\n${separator} `)}`;
 };
 
+const tier = (tier, size = 30) =>
+	`{{Icon/Tier|${tier}|${size}px}}`;
+
 const timestamp = () => {
 	const end = performance.now();
 
@@ -193,4 +196,19 @@ const timestamp = () => {
 const title = (text, tier = 1) =>
 	`\n${'='.repeat(tier)} ${text} ${'='.repeat(tier)}\n`;
 
-export default { bold, code, comment, icon, italic, link, list, rawScience, table, tableHeader, tableRow, timestamp, title };
+export default {
+	bold,
+	code,
+	comment,
+	icon,
+	italic,
+	link,
+	list,
+	rawScience,
+	table,
+	tableHeader,
+	tableRow,
+	tier,
+	timestamp,
+	title,
+};

@@ -1,9 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import constants from './constants.js';
 import sharp from 'sharp';
 
+import constants from './constants.js';
+
 let dataTableCache = {};
+let assetCache = {};
 
 // TODO: clean this up
 // https://sharp.pixelplumbing.com/api-composite/
@@ -66,6 +68,38 @@ const getPlacementTypes = (value) => {
 	return names;
 };
 
+// TODO: I'm sure this needs more work
+const getAssetPathItem = ({ AssetPathName = '', SubPathString = '' }) => {
+	// TODO: add SubPathString check eventually?
+	if (!AssetPathName) return {};
+
+	const [assetPath = '', assetKey = ''] = AssetPathName.split('.');
+
+	const absolutePath = path.format({
+		// TODO: replace with constant?
+		root: 'data',
+		name: assetPath,
+		ext: 'json',
+	});
+
+	let asset = {};
+	if (!Object.hasOwn(assetCache, assetKey) || !assetCache[assetKey]) {
+		const data = fs.readFileSync(absolutePath, 'utf8');
+
+		if (!data) return false;
+
+		const jsonData = JSON.parse(data);
+
+		if (!jsonData) return false;
+
+		assetCache[assetKey] = jsonData.find(({ Name }) => Name === assetKey) || {};
+	}
+
+	asset = assetCache[assetKey];
+
+	return asset;
+};
+
 /**
  * Gets a row from a referenced Unreal Engine data table.
  * @param {{DataTable: {ObjectPath?: string}, RowName?: string}} reference - Data table and row reference.
@@ -122,5 +156,6 @@ export default {
 	getDamageTypes,
 	getDataTableItem,
 	getPlacementTypes,
+	getAssetPathItem,
 	parsePathData,
 };
